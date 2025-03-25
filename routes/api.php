@@ -13,6 +13,7 @@ Route::get('/users', [AuthController::class, 'getUsers']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
+Route::patch('/users/{id}', [AuthController::class, 'update']);
 Route::delete('/users/{id}', [AuthController::class, 'delete']);
 
 Route::middleware('auth:sanctum')->group(function () {
