@@ -11,14 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('personal_access_tokens', function (Blueprint $table) {
+        Schema::create('mcu_patients', function (Blueprint $table) {
             $table->id();
-            $table->morphs('tokenable');
+            $table->foreignId('patient_id')->constrained()->onDelete('cascade');
             $table->string('name');
-            $table->string('token', 64)->unique();
-            $table->text('abilities')->nullable();
-            $table->timestamp('last_used_at')->nullable();
-            $table->timestamp('expires_at')->nullable();
+            $table->date('examination_date');
+            $table->string('examination_type')->default('MCU');
+            $table->enum('status', ['Delivered', 'Process', 'Canceled']);
             $table->timestamps();
         });
     }
@@ -28,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('personal_access_tokens');
+        Schema::dropIfExists('mcu_patients');
     }
 };
