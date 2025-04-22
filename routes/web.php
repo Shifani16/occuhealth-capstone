@@ -18,3 +18,7 @@ Route::get('/forgotpass', function () {
 Route::get('/verifypass', function () {
     return view('auth.verifypass');
 });
+
+Route::get('/aboutus', function () {
+    return view('main.aboutus');
+});

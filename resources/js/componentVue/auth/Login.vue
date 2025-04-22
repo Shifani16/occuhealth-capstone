@@ -49,7 +49,7 @@
             </div>
 
             <!-- Button Masuk -->
-            <div class="flex justify-center">@click.prevent="showConfirmPopUp"
+            <div class="flex justify-center">
                 <button
                     type="submit"
                     @mouseenter="hovering = true"
@@ -116,8 +116,8 @@
 import { ref } from 'vue'
 
 // I can't use this dawg buat ngarahin ke page VerifyPass.vue
-// import { useRouter } from 'vue-router'
-// const router = useRouter()
+import { useRouter } from 'vue-router'
+const router = useRouter()
 
 const nip = ref('')
 const password = ref('')
