@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\dashboard\PatientController;
 use App\Http\Controllers\dashboard\McuPatientController;
 use App\Http\Controllers\dashboard\McuResultController;
+use App\Http\Controllers\ForgotPasswordController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -16,8 +17,12 @@ Route::get('/users', [AuthController::class, 'getUsers']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
+Route::post('/send-reset-link', [ForgotPasswordController::class, 'sendResetLink']);
+
 Route::patch('/users/{id}', [AuthController::class, 'update']);
 Route::delete('/users/{id}', [AuthController::class, 'delete']);
+
+Route::middleware('auth:sanctum')->post('/change-password', [AuthController::class, 'changePassword']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);

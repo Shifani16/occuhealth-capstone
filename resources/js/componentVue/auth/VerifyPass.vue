@@ -58,23 +58,12 @@
             <p class="text-white px-4 py-2 font-medium mb-4">
                 Tautan verifikasi sudah dikirim melalui Email Anda
             </p>
-
-            <div class="flex justify-center gap-4">
-              <button
-                  class="bg-transparent text-white border border-white px-4 py-2 rounded-md hover:bg-white hover:text-[#27394B] font-semibold"
-                  @click="showPopUp = false"
-              >
-                  Batal
-              </button>
-
-                <button
-                  class="bg-transparent text-white border border-white px-4 py-2 rounded-md hover:bg-white hover:text-[#27394B] font-semibold"
-                  @click="showPopUp = false"
-                >
-                  Cek Email
-                </button>
-            </div>
-            
+            <button
+            class="bg-transparent text-white border border-white px-4 py-2 rounded-md hover:bg-white hover:text-[#27394B] font-semibold"
+            @click="openGmail"
+            >
+                Cek Email
+            </button>
         </div>
        </div>
     </div>
@@ -89,14 +78,29 @@ import { ref } from 'vue'
 import verifyWhite from '@/assets/verifyWhite.svg'
 import verifyGreen from '@/assets/verifyGreen.svg'
 
-function verifyPass() {
+import axios from 'axios'
+
+async function verifyPass() {
   if (email.value.trim()) {
-    console.log('Verifikasi dikirim ke:', email.value)
-    showPopUp.value = true
+    try {
+      await axios.post('https://occuhealth-capstone-production.up.railway.app/api/send-reset-link', {
+        email: email.value
+      });
+      showPopUp.value = true;
+    } catch (error) {
+      console.error(error);
+      alert(error.response?.data?.message || 'Terjadi kesalahan saat mengirim email.');
+    }
   } else {
-    alert('Mohon masukkan email terlebih dahulu.')
+    alert('Mohon masukkan email terlebih dahulu.');
   }
 }
+
+function openGmail() {
+  window.open('https://mail.google.com/', '_blank');
+  showPopUp.value = false;
+}
+
 
 // For hover button masuk
 const hovering = ref(false)
