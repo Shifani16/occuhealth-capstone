@@ -58,12 +58,23 @@
             <p class="text-white px-4 py-2 font-medium mb-4">
                 Tautan verifikasi sudah dikirim melalui Email Anda
             </p>
-            <button
-            class="bg-transparent text-white border border-white px-4 py-2 rounded-md hover:bg-white hover:text-[#27394B] font-semibold"
-            @click="showPopUp = false"
-            >
-                Cek Email
-            </button>
+
+            <div class="flex justify-center gap-4">
+              <button
+                  class="bg-transparent text-white border border-white px-4 py-2 rounded-md hover:bg-white hover:text-[#27394B] font-semibold"
+                  @click="showPopUp = false"
+              >
+                  Batal
+              </button>
+
+                <button
+                  class="bg-transparent text-white border border-white px-4 py-2 rounded-md hover:bg-white hover:text-[#27394B] font-semibold"
+                  @click="showPopUp = false"
+                >
+                  Cek Email
+                </button>
+            </div>
+            
         </div>
        </div>
     </div>
