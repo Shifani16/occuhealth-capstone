@@ -78,14 +78,24 @@ import { ref } from 'vue'
 import verifyWhite from '@/assets/verifyWhite.svg'
 import verifyGreen from '@/assets/verifyGreen.svg'
 
-function verifyPass() {
+import axios from 'axios'
+
+async function verifyPass() {
   if (email.value.trim()) {
-    console.log('Verifikasi dikirim ke:', email.value)
-    showPopUp.value = true
+    try {
+      await axios.post('https://occuhealth-capstone-production.up.railway.app/api/send-reset-link', {
+        email: email.value
+      });
+      showPopUp.value = true;
+    } catch (error) {
+      console.error(error);
+      alert(error.response?.data?.message || 'Terjadi kesalahan saat mengirim email.');
+    }
   } else {
-    alert('Mohon masukkan email terlebih dahulu.')
+    alert('Mohon masukkan email terlebih dahulu.');
   }
 }
+
 
 // For hover button masuk
 const hovering = ref(false)
