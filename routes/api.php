@@ -22,6 +22,8 @@ Route::post('/send-reset-link', [ForgotPasswordController::class, 'sendResetLink
 Route::patch('/users/{id}', [AuthController::class, 'update']);
 Route::delete('/users/{id}', [AuthController::class, 'delete']);
 
+Route::middleware('auth:sanctum')->post('/change-password', [AuthController::class, 'changePassword']);
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);

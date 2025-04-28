@@ -124,4 +124,23 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'User deleted successfully']);
     }
+
+    public function changePassword(Request $request)
+    {
+        $request->validate([
+            'old_password' => 'required|string',
+            'new_password' => 'required|string|min:6|confirmed',
+        ]);
+
+        $user = $request->user();
+
+        if (!Hash::check($request->old_password, $user->password)) {
+            return response()->json(['message' => 'Kata sandi lama salah.'], 400);
+        }
+
+        $user->password = Hash::make($request->new_password);
+        $user->save();
+
+        return response()->json(['message' => 'Kata sandi berhasil diperbarui.']);
+    }
 }
