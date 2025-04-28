@@ -7,18 +7,22 @@ Route::get('/', function () {
     return redirect('/login');
 });
 
-Route::get('/login', function () {
-    return view('auth.login');
-});
+Route::get('/{any}', function () {
+    return view('app');
+})->where('any', '.*');
 
-Route::get('/forgotpass', function () {
-    return view('auth.forgotpass');
-});
+// Route::get('/login', function () {
+//     return view('auth.login');
+// });
 
-Route::get('/verifypass', function () {
-    return view('auth.verifypass');
-});
+// Route::get('/forgotpass', function () {
+//     return view('auth.forgotpass');
+// });
 
-Route::get('/aboutus', function () {
-    return view('main.aboutus');
-});
+// Route::get('/verifypass', function () {
+//     return view('auth.verifypass');
+// });
+
+// Route::get('/aboutus', function () {
+//     return view('main.aboutus');
+// });

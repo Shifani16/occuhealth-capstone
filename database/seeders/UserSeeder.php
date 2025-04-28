@@ -23,6 +23,7 @@ class UserSeeder extends Seeder
                 'name' => $faker->name,
                 'nip' => $faker->unique()->numerify('##########'),
                 'nip_verified_at' => now(),
+                'email' => $faker->unique()->safeEmail,
                 'password' => Hash::make('12345'),
             ]);
         }

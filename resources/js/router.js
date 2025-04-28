@@ -7,7 +7,8 @@ import VerifyPass from './componentVue/auth/VerifyPass.vue'
 import AboutUs from './componentVue/main/AboutUs.vue'
 
 const routes = [
-  { path: '/', name: 'Login', component: Login },
+  { path: '/', redirect: '/login' },
+  { path: '/login', name: 'Login', component: Login },
   { path: '/forgotpass', component: ForgotPass },
   { path: '/verifypass', name: 'VerifyPass', component: VerifyPass },
   { path: '/aboutus', name: 'AboutUs', component: AboutUs }
