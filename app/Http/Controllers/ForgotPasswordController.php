@@ -35,12 +35,8 @@ class ForgotPasswordController extends Controller
         ]);
     }
 
-    public function verifyLink(Request $request, $userId)
+    public function verifyLink()
     {
-        if (!$request->hasValidSignature()) {
-            abort(401, 'Link tidak valid atau kadaluarsa.');
-        }
-
         return redirect('/forgotpass'); 
     }
 }
