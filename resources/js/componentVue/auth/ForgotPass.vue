@@ -205,6 +205,15 @@ const router = useRouter();
 
 const userId = ref(route.query.user);
 
+import { onBeforeMount } from 'vue'
+
+onBeforeMount(() => {
+  if (!route.query.user) {
+    router.replace('/login');
+  }
+});
+
+
 function togglePassword(state) {
     return state ? passwordOpen : passwordClose;
 }
