@@ -1,5 +1,5 @@
 <template>
-    <div class="contactus">
+    <div class="ourservice">
         <header class="bg-[#CAEAF2] px-10 py-6 flex justify-between items-center">
             <div class="flex items-center gap-6">
                 <img src="@/assets/occuhelp-full-logo.svg" alt="OccuHelp Full Logo" class="h-15"/>
@@ -8,8 +8,8 @@
             <nav class="container-open-sans ml-auto hidden md:flex space-x-6 font-bold text-black">
                 <router-link to="/" class="hover:text-[#305879]">Dashboard</router-link>
                 <router-link to="/aboutus" class="hover:text-[#305879]">Tentang Kami</router-link>
-                <router-link to="/ourservice" class="hover:text-[#305879]">Layanan Kami</router-link>
-                <a href="#" class="text-[#305879] border-b-2 border-sky-800">Kontak</a>
+                <a href="#" class="text-[#305879] border-b-2 border-sky-800">Layanan Kami</a>
+                <router-link to="/contactus" class="hover:text-[#305879]">Kontak</router-link>
             </nav>
 
             <span class="h-10 ml-15">
@@ -17,41 +17,20 @@
             </span>
         </header>
 
-        <section class="relative z-10 max-w-8xl ml-8 mt-10 mb-10 text-left px-4 ">
-            <h2 class="container-nunito font-bold sm:text-[24px] md:text-[32px] lg:text-[36px]">Terima kasih atas ketertarikan Anda kepada kami.</h2>
-            <p class="container-open-sans font-semibold sm:text-[14px] md:text-[16px] lg:text-[20px]">
-                Jika Anda memiliki pertanyaan, ingin memberikan masukan, atau membutuhkan informasi lebih lanjut, jangan ragu untuk menghubungi kami. Kami dengan senang hati siap membantu Anda.
-            </p>
-        </section>
+        <section class="relative flex justify-center items-start px-4 md:px-0 my-30">
+            <img
+                src="@/assets/our-service-image.svg"
+                alt="Our Service Image"
+                class="absolute -top-20 md:-top-24 z-10 w-72 md:w-96 lg:w-100"
+            />
 
-        <section class="bg-[#E6F6F9] px-10 py-14 relative overflow-hidden rounded-xl mx-8 lg:mx-20">
-            <div class="max-w-6xl mx-auto flex flex-row lg:flex-row items-center justify-between gap-10">
-                <div class="container-open-sans sm:text-[14px] md:text-[18px] lg:text-[20px] w-full  sm:w-1/2 md:w-1/2 lg:w-1/2 space-y-4">
-                    <input
-                       type="email"
-                       placeholder="Email"
-                       class="w-full p-3 rounded-md bg-[#299BB8] placeholder-white text-white font-semibold focus:outline-none"
-                    />
-                    <input
-                       type="text"
-                       placeholder="Nomor Telepon"
-                       class="w-full p-3 rounded-md bg-[#299BB8] placeholder-white text-white font-semibold focus:outline-none"
-                    />
-                    <textarea
-                       rows="5"
-                       placeholder="Ketik Pesan Anda di sini..."
-                       class="w-full p-3 rounded-md bg-[#299BB8] placeholder-white text-white font-semibold focus:outline-none"
-                    ></textarea>
-                    <button class="w-full text-black py-2 border border-black rounded-md font-semibold hover:bg-[#C9EBF3] hover:border-[#C9EBF3] transition duration-200">
-                        Kirim
-                    </button>
-                </div>
-
-                <div class="w-full sm:w-1/2 md:w-1/2 lg:w-1/2 flex justify-center">
-                    <img src="@/assets/contact-us-image.svg" alt="Contact Us Image" 
-                         class="max-w-sm w-full"
-                    />
-                </div>
+            <div class="bg-[#E6F6F9] rounded-3xl pt-40 pb-8 px-6 md:px-10 max-w-5xl w-full">
+                <h2 class="container-nunito md:text-[30px] lg:text-[48px] font-bold text-black mb-4">
+                    Apa itu <span class="whitespace-nowrap">Medical Check-Up (MCU)</span> <span class="text-[#217F96]">berbasis Okupasi?</span>
+                </h2>
+                <p class="container-open-sans text-justify text-sm md:text-base text-[#1B1B1B] leading-relaxed">
+                    MCU (Medical Check-Up) berbasis okupasi adalah pemeriksaan medis untuk memastikan seseorang memiliki kondisi kesehatan yang memadai guna menjalankan tugas pekerjaan secara aman dan efektif. Pemeriksaan ini disesuaikan dengan jenis pekerjaan, mengingat tiap pekerjaan memiliki risiko kesehatan berbeda.
+                </p>
             </div>
         </section>
 

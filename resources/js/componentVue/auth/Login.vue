@@ -28,11 +28,11 @@
                         alt="Logo"
                         class="mx-auto mb-4 w-26 h-26 -mt-4"
                     />
-                    <h2 class="text-3xl font-bold text-[#3393AD] leading-snug">
+                    <h2 class="container-nunito text-left sm:text-2xl md:text 3xl lg:text-3xl font-bold text-[#3393AD] leading-snug">
                         Halo, <br />
                         <span class="font-bold">Selamat Datang Kembali!</span>
                     </h2>
-                    <p class="text-sm text-[#3393AD] mt-2 mb-6">
+                    <p class="container-open-sans text-left text-sm text-[#3393AD] mt-2 mb-6">
                         Masukkan NIP dan kata sandi untuk melanjutkan akses.
                     </p>
                 </div>
@@ -73,7 +73,7 @@
                     <div class="flex justify-end items-center mb-6">
                         <a
                             href="#"
-                            class="text-sm text-[#3393AD] hover:underline"
+                            class="container-open-sans text-sm text-[#3393AD] hover:underline"
                             @click.prevent="showConfirmPopUp"
                         >
                             Ubah Kata Sandi
@@ -96,7 +96,7 @@
 
                             <span
                                 :class="[
-                                    'mr-2 font-semibold transition',
+                                    'container-open-sans mr-2 font-semibold transition',
                                     hovering ? 'text-white' : 'text-[#3393AD]',
                                 ]"
                             >
@@ -248,3 +248,13 @@ function goToVerifyPage() {
 // For hover button
 const hovering = ref(false);
 </script>
+
+<style scoped>
+.container-nunito {
+    font-family: "Nunito", sans-serif;
+}
+
+.container-open-sans {
+    font-family: "Open Sans", sans-serif;
+}
+</style>

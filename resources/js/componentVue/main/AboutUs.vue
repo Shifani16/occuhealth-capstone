@@ -7,11 +7,11 @@
                 <img src="@/assets/occuhelp-full-logo.svg" alt="OccuHelp Full Logo" class="h-15"/>
             </div>
                 
-            <nav class="ml-auto hidden md:flex space-x-6 font-bold text-black">
-                <a href="#" class="hover:text-[#305879]">Dashboard</a>
+            <nav class="container-open-sans ml-auto hidden md:flex space-x-6 font-bold text-black">
+                <router-link to="/" class="hover:text-[#305879]">Dashboard</router-link>
                 <a href="#" class="text-[#305879] border-b-2 border-sky-800">Tentang Kami</a>
-                <a href="#" class="hover:text-[#305879]">Layanan Kami</a>
-                <a href="#" class="hover:text-[#305879]">Kontak</a>
+                <router-link to="/ourservice" class="hover:text-[#305879]">Layanan Kami</router-link>
+                <router-link to="/contactus" class="hover:text-[#305879]">Kontak</router-link>
             </nav>
 
             <span class="h-10 ml-15">
@@ -26,14 +26,14 @@
             <img src="@/assets/aboutus-bottom-right.svg" class="absolute bottom-0 right-0 w-60 z-10" />
 
             <div class="relative z-20 flex flex-col md:flex-row items-center justify-between max-w-7xl mx-auto gap-10">
-                <div class="md:w-1/2 text-left">
+                <div class="container-nunito md:w-1/2 text-left">
                     <h1 class=" text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-8 -mt-6">
                         KESEHATAN ANDA ADALAH
                         <span class="text-[#217F96]">PRIORITAS</span>
                         KAMI
                     </h1>
 
-                    <p class="text-sm sm:text-base md:text-lg lg:text-2xl text-gray-700">
+                    <p class="container-open-sans text-sm sm:text-base md:text-lg lg:text-2xl text-gray-700">
                         Kami menyediakan layanan pengelolaan data hasil MCU secara aman dan 
                         efisien untuk membantu Anda memantau kesehatan dengan lebih mudah.
                     </p>
@@ -51,9 +51,9 @@
                 <img src="@/assets/aboutus-occuhelp-bg.svg" alt="Background Apa Itu OccuHelp" class="max-h-[90%] object-contain"/>
             </div>
 
-            <div class="relative z-10 max-w-4xl mx-auto text-left px-4 sm:px-44 md:px-60">
-                <h2 class="text-4xl font-bold mb-6">Apa itu OccuHelp?</h2>
-                <p class="text-gray-700 text-justify">
+            <div class="relative z-10 max-w-4xl mx-auto text-left px-4 sm:px-44 md:px-50 lg:px-60">
+                <h2 class="container-nunito text-4xl font-bold mb-6">Apa itu OccuHelp?</h2>
+                <p class="container-open-sans text-gray-700 text-justify">
                     OccuHelp adalah platform digital yang memudahkan tenaga kesehatan 
                     dalam mengelola data Medical Check-Up pekerja, menawarkan solusi 
                     efisien untuk pencatatan dan pemantauan kesehatan pekerja.
@@ -66,8 +66,8 @@
                 <!-- Visi -->
                 <div class="card hoverable-card group bg-[#95D4E4] p-8 rounded-lg flex-1 min-w-[250px] max-w-[450px] transition-all duration-300">
                     <img src="@/assets/visionBlack.svg" alt="Visi" class="icon-img mx-auto h-15 mb-5 mt-1 transition-all duration-300" />
-                    <h3 class="text-center text-[24px] font-bold mb-2">VISI</h3>
-                    <p class="text-gray-700 text-justify text-[20px]">
+                    <h3 class="container-open-sans text-center text-[24px] font-bold mb-2">VISI</h3>
+                    <p class="container-open-sans text-gray-700 text-justify sm:text-[16px] md:text-[18px] lg:text-[20px]">
                         Visi kami adalah mempermudah tenaga kesehatan mengelola data 
                         Medical Check-Up pekerja secara efisien dan akurat, serta mendukung 
                         kesehatan pekerja melalui sistem yang mudah diakses dan terpercaya.
@@ -77,8 +77,8 @@
                 <!-- Misi -->
                 <div class="card hoverable-card group bg-[#95D4E4] p-8 rounded-lg flex-1 min-w-[250px] max-w-[450px] transition-all duration-300">
                     <img src="@/assets/missionBlack.svg" alt="Misi" class="icon-img mx-auto h-15 mb-5 mt-1 transition-all duration-300" />
-                    <h3 class="text-center text-[24px] font-bold mb-2">MISI</h3>
-                    <p class="text-gray-700 text-justify text-[20px]">
+                    <h3 class="container-open-sans text-center text-[24px] font-bold mb-2">MISI</h3>
+                    <p class="container-open-sans text-gray-700 text-justify sm:text-[16px] md:text-[18px] lg:text-[20px] ">
                         Misi kami adalah menyediakan platform teknologi untuk memudahkan 
                         tenaga medis mengelola data kesehatan pekerja, mengurangi beban 
                         administratif, dan meningkatkan akurasi pengelolaan data.
@@ -91,8 +91,8 @@
                     class="absolute mr-150 -top-10 sm:-top-20 h-[300px] sm:h-[430px] md:h-[430px] lg:h-[430px] object-contain rounded-xl"
                 />
                 <div class="sm:ml-60 md:ml-80 lg:ml-85 text-left">
-                    <h3 class="text-[48px] sm:text-3xl md:text-4xl font-bold mb-4">Kenapa harus OccuHelp?</h3>
-                    <p class="text-gray-700 text-justify">
+                    <h3 class="container-nunito text-[48px] sm:text-3xl md:text-4xl font-bold mb-4">Kenapa harus OccuHelp?</h3>
+                    <p class="container-open-sans text-gray-700 text-justify">
                         OccuHelp mengatasi tantangan pengelolaan data kesehatan pekerja 
                         dengan solusi teknologi praktis, memungkinkan tenaga medis fokus 
                         pada perawatan pasien tanpa khawatir administrasi data.
@@ -101,7 +101,7 @@
             </div>
         </section>
 
-        <footer class="bg-[#78C8DD] px-10 py-10 mt-20 rounded-tl-4xl rounded-tr-4xl">
+        <footer class="container-open-sans bg-[#78C8DD] px-10 py-10 mt-20 rounded-tl-4xl rounded-tr-4xl">
             <div class="flex justify-between flex-wrap gap-8">
                 <div>
                     <h4 class="font-bold mb-2 text-[24px]">Butuh Bantuan?</h4>
@@ -186,5 +186,13 @@
 
 .hoverable-card:hover .icon-img[alt="Misi"] {
   content: url("@/assets/missionHover.svg");
+}
+
+.container-nunito {
+    font-family: "Nunito", sans-serif;
+}
+
+.container-open-sans {
+    font-family: "Open Sans", sans-serif;
 }
 </style>

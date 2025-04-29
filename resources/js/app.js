@@ -1,5 +1,8 @@
 import './bootstrap';
 
+import "@fontsource/nunito";
+import "@fontsource/open-sans";
+
 import { createApp } from 'vue';
 import router from './router';
 

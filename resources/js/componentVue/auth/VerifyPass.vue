@@ -8,11 +8,11 @@
       <!-- Kanan -->
       <div class="w-1/2 flex items-center justify-center bg-[#FFFF]">
         <div class="bg-[#D4ECF2] rounded-3xl shadow-md px-10 py-16 w-full max-w-md">
-          <div class="text-center">
-            <h2 class="text-3xl font-bold text-[#3393AD] leading-snug -mt-6 mb-6">
-              <span class="font-semibold">Silahkan Masukkan Email Anda di Sini!</span>
+          <div class="text-left">
+            <h2 class="sm: text-[30px] md:text-[35px] lg:text-[40px] font-bold text-[#3393AD] leading-snug -mt-6 mb-6">
+              <span class="container-nunito text-left font-semibold">Silahkan Masukkan Email Anda di Sini!</span>
             </h2>
-            <p class="text-sm text-[#3393AD] mt-2 mb-6 justify">
+            <p class="container-open-sans text-sm text-[#3393AD] mt-2 mb-6 justify">
                 Kami akan mengirimkan tautan verifikasi ke email Anda. Klik tautan
                 tersebut untuk melanjutkan proses ganti kata sandi akun Anda.
             </p>
@@ -39,7 +39,7 @@
                         class="w-5 h-5 mr-2 transition duration-200"
                     />
 
-                    <span :class="['mr-2 font-semibold transition', hovering ? 'text-white' : 'text-[#3393AD]']">
+                    <span :class="['container-open-sans mr-2 font-semibold transition', hovering ? 'text-white' : 'text-[#3393AD]']">
                         Kirim Link Verifikasi
                     </span>
                 </button>
@@ -49,6 +49,24 @@
       </div>
 
       <!-- Pop Up -->
+      <div v-if="showEmptyWarningPopUp" class="fixed inset-0 bg-[rgba(0,0,0,0.3)] flex items-center justify-center z-50">
+        <div class="bg-[#27394B] p-6 rounded-2xl shadow-md w-96 text-center">
+          <img src="@/assets/warning-triangle.svg" alt="Warning" class="w-20 mx-auto mb-4"/>
+          <p class="text-white px-4 py-2 font-medium mb-4">
+            Isi email terlebih dahulu
+          </p>
+
+          <div class="flex-justify-center">
+            <button
+               class="bg-transparent text-white border border-white px-4 py-2 rounded-md hover:bg-white hover:text-[#27394B] font-semibold"
+               @click="showEmptyWarningPopUp = false"
+            >
+               Tutup
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div v-if="showPopUp" class="fixed inset-0 bg-[rgba(0,0,0,0.3)] flex items-center justify-center z-50">
         <div class="bg-[#27394B] p-6 rounded-2xl shadow-md w-96 text-center">
             <img src="@/assets/verifyWhite.svg"
@@ -74,15 +92,15 @@
                    Cek Email
                  </button>
              </div>
-          
-        </div>
-       </div>
+         </div>
+      </div>
     </div>
   </template>
   
 <script setup>
 // Value for v-model
 const email = ref('')
+const showEmptyWarningPopUp = ref(false)
 
 // Asset path
 import { ref } from 'vue'
@@ -103,7 +121,7 @@ async function verifyPass() {
       alert(error.response?.data?.message || 'Terjadi kesalahan saat mengirim email.');
     }
   } else {
-    alert('Mohon masukkan email terlebih dahulu.');
+    showEmptyWarningPopUp.value = true;
   }
 }
 
@@ -117,3 +135,13 @@ function openGmail() {
 const hovering = ref(false)
 const showPopUp = ref(false)
 </script>
+
+<style scoped>
+.container-nunito {
+    font-family: "Nunito", sans-serif;
+}
+
+.container-open-sans {
+    font-family: "Open Sans", sans-serif;
+}
+</style>

@@ -7,7 +7,7 @@ import VerifyPass from './componentVue/auth/VerifyPass.vue'
 
 import AboutUs from './componentVue/main/AboutUs.vue'
 import ContactUs from './componentVue/main/ContactUs.vue'
-
+import OurService from './componentVue/main/OurService.vue'
 
 const routes = [
   { path: '/', redirect: '/login' },
@@ -16,6 +16,7 @@ const routes = [
   { path: '/verifypass', name: 'VerifyPass', component: VerifyPass },
   { path: '/aboutus', name: 'AboutUs', component: AboutUs },
   { path: '/contactus', name:'ContactUs', component: ContactUs},
+  { path: '/ourservice', name:'OurService', component: OurService},
   { path: '/verify-reset/:user(.*)', redirect: '/' }
 ]
 

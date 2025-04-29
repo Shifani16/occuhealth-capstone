@@ -14,13 +14,13 @@
             <div
                 class="bg-[#D4ECF2] rounded-3xl shadow-md px-10 py-16 w-full max-w-md"
             >
-                <div class="text-center">
+                <div class="text-left">
                     <h2 class="text-3xl font-bold text-[#3393AD] leading-snug">
-                        <span class="font-semibold"
+                        <span class="container-nunito font-semibold"
                             >Silahkan Ganti Kata Sandi Anda di Sini!</span
                         >
                     </h2>
-                    <p class="text-sm text-[#3393AD] mt-2 mb-6">
+                    <p class="container-open-sans text-sm text-[#3393AD] mt-2 mb-6">
                         Jangan gunakan kata-kata yang mudah ditebak, seperti
                         nama atau tanggal lahir.
                     </p>
@@ -110,7 +110,7 @@
 
                             <span
                                 :class="[
-                                    'mr-2 font-semibold transition',
+                                    'container-open-sans mr-2 font-semibold transition',
                                     hovering ? 'text-white' : 'text-[#3393AD]',
                                 ]"
                             >
@@ -281,4 +281,13 @@ const hovering = ref(false);
 .animate-shake {
     animation: shake 0.4s ease;
 }
+
+.container-nunito {
+    font-family: "Nunito", sans-serif;
+}
+
+.container-open-sans {
+    font-family: "Open Sans", sans-serif;
+}
+
 </style>
