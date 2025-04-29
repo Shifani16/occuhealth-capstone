@@ -24,4 +24,14 @@ const router = createRouter({
   routes,
 })
 
+router.beforeEach((to, from, next) => {
+  if (to.name === null) {
+    next('/login');
+  } else if (to.name === 'ForgotPass' && !to.query.user) {
+    next('/login');
+  } else {
+    next();
+  }
+});
+
 export default router

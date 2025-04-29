@@ -23,6 +23,7 @@ Route::patch('/users/{id}', [AuthController::class, 'update']);
 Route::delete('/users/{id}', [AuthController::class, 'delete']);
 
 Route::middleware('auth:sanctum')->post('/change-password', [AuthController::class, 'changePassword']);
+Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
