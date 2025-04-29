@@ -198,6 +198,12 @@ import lock from "@/assets/lock.svg";
 import lockWhite from "@/assets/lockWhite.svg";
 
 import axios from "axios";
+import { useRoute, useRouter } from "vue-router";
+
+const route = useRoute();
+const router = useRouter();
+
+const userId = ref(route.query.user);
 
 function togglePassword(state) {
     return state ? passwordOpen : passwordClose;
@@ -208,9 +214,8 @@ function goToLogin() {
     router.push("/login");
 }
 
-
 async function submitReset() {
-    if (!oldPassword.value || !newPassword.value || !confirmPassword.value) {
+    if (!newPassword.value || !confirmPassword.value) {
         showWarningPopup.value = true;
         return;
     }
@@ -224,36 +229,20 @@ async function submitReset() {
     }
 
     try {
-        const token = localStorage.getItem("token");
-
-        await axios.post(
-            "/api/change-password",
-            {
-                old_password: oldPassword.value,
-                new_password: newPassword.value,
-                new_password_confirmation: confirmPassword.value,
-            },
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            }
-        );
+        await axios.post("/api/reset-password", {
+            user_id: Number(userId.value),
+            password: newPassword.value,
+        });
 
         showSuccessPopup.value = true;
-        oldPassword.value = "";
         newPassword.value = "";
         confirmPassword.value = "";
     } catch (error) {
         console.error(error);
-        if (
-            error.response &&
-            error.response.data.message === "Kata sandi lama salah."
-        ) {
-            alert("Kata sandi lama Anda salah!");
-        } else {
-            alert("Gagal memperbarui kata sandi. Coba lagi nanti.");
-        }
+        alert(
+            error.response?.data?.message ||
+                "Gagal memperbarui kata sandi. Coba lagi nanti."
+        );
     }
 }
 
