@@ -20,10 +20,10 @@ class ForgotPasswordController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        // *** Logging APP_KEY and URL before generation ***
+       
         Log::info('--- Signed URL Generation Start ---');
-        Log::info('APP_URL config: ' . config('app.url')); // Check base URL used
-        Log::info('APP_KEY config (Generation): ' . config('app.key')); // Check key used for signing
+        Log::info('APP_URL config: ' . config('app.url'));
+        Log::info('APP_KEY config (Generation): ' . config('app.key')); 
         Log::info('---------------------------------');
 
         $resetUrl = URL::temporarySignedRoute(
@@ -48,27 +48,6 @@ class ForgotPasswordController extends Controller
 
     public function verifyLink(Request $request)
     {
-        // *** Logging everything BEFORE validation ***
-        Log::info('--- Signed URL Verification Start ---');
-        Log::info('APP_URL config (Verification): ' . config('app.url')); // Check base URL during verification (less critical here)
-        Log::info('APP_KEY config (Verification): ' . config('app.key')); // *** THIS IS THE KEY USED FOR VERIFICATION ***
-        Log::info('Incoming Full URL: ' . $request->fullUrl()); // Exact URL received by Laravel
-        Log::info('Incoming Scheme: ' . $request->getScheme()); // Should be https
-        Log::info('Incoming Host: ' . $request->getHost()); // Should be your domain
-        Log::info('Incoming Path: ' . $request->path()); // Should be verify-reset/{user_id}
-        Log::info('Incoming Query String: ' . $request->getQueryString()); // Includes expires, signature, user
-        Log::info('Signature received: ' . $request->query('signature'));
-        Log::info('Expires received: ' . $request->query('expires'));
-        Log::info('User ID received: ' . $request->route('user')); // Get user from route parameter
-
-        $isValid = $request->hasValidSignature();
-        Log::info('Result of hasValidSignature(): ' . ($isValid ? 'true' : 'false'));
-        Log::info('-------------------------------------');
-
-        if (! $isValid) { // Use the variable
-            abort(403, 'Link tidak valid atau sudah kedaluwarsa.');
-        }
-
         return redirect('/forgotpass?user=' . $request->user);
     }
 
