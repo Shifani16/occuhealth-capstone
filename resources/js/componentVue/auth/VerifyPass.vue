@@ -83,7 +83,7 @@ import axios from 'axios'
 async function verifyPass() {
   if (email.value.trim()) {
     try {
-      await axios.post('https://occuhealth-capstone-production.up.railway.app/api/send-reset-link', {
+      await axios.post('https://occuhelp-capstone-production.up.railway.app/api/send-reset-link', {
         email: email.value
       });
       showPopUp.value = true;
