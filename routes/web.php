@@ -9,7 +9,9 @@ Route::get('/', function () {
     return redirect('/login');
 });
 
-Route::get('/verify-reset/{user}', [ForgotPasswordController::class, 'verifyLink'])->name('password.reset');
+Route::get('/verify-reset/{user}', [ForgotPasswordController::class, 'verifyLink'])
+    ->name('password.reset')
+    ->middleware('signed');
 
 Route::get('/{any}', function () {
     return view('app');
