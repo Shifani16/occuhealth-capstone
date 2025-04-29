@@ -59,11 +59,11 @@
                 Tautan verifikasi sudah dikirim melalui Email Anda
             </p>
             <button
-  class="bg-transparent text-white border border-white px-4 py-2 rounded-md hover:bg-white hover:text-[#27394B] font-semibold"
-  @click="openGmail"
->
-  Cek Email
-</button>
+            class="bg-transparent text-white border border-white px-4 py-2 rounded-md hover:bg-white hover:text-[#27394B] font-semibold"
+            @click="openGmail"
+            >
+                Cek Email
+            </button>
         </div>
        </div>
     </div>

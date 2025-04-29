@@ -86,12 +86,12 @@
                 </div>  
             </div>
 
-            <div class="relative bg-[#E6F6F9] p-10 rounded-xl max-w-5xl mx-auto h-min-h-[200px] sm:min-h-[350px] md:min-h-[150px] flex items-center justify-center gap-10 overflow-visible">
+            <div class="relative bg-[#E6F6F9] p-10 rounded-xl max-w-5xl mx-auto h-min-h-[200px] sm:min-h-[350px] md:min-h-[350px] lg:min-h-[350px] flex items-center justify-center gap-10 overflow-visible">
                 <img src="@/assets/aboutUsPerson.svg" alt="About Us Person" 
-                    class="absolute mr-150 -top-10 sm:-top-20 h-[300px] sm:h-[400px] md:h-[500px] lg:h-[430px] object-contain rounded-xl"
+                    class="absolute mr-150 -top-10 sm:-top-20 h-[300px] sm:h-[430px] md:h-[430px] lg:h-[430px] object-contain rounded-xl"
                 />
-                <div class="ml-90 text-left">
-                    <h3 class="text-[48px] font-bold mb-4">Kenapa harus OccuHelp?</h3>
+                <div class="sm:ml-60 md:ml-80 lg:ml-85 text-left">
+                    <h3 class="text-[48px] sm:text-3xl md:text-4xl font-bold mb-4">Kenapa harus OccuHelp?</h3>
                     <p class="text-gray-700 text-justify">
                         OccuHelp mengatasi tantangan pengelolaan data kesehatan pekerja 
                         dengan solusi teknologi praktis, memungkinkan tenaga medis fokus 
