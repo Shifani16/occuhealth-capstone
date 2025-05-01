@@ -110,9 +110,19 @@
                         lanjut, hubungi tim kami untuk solusi terbaik.
                     </p>
                     <div class="flex items-center gap-2 mb-2">
-                        <input type="email" placeholder="Email"
-                        class="text-[#3C646F] font-bold mt-2 p-2 rounded-md w-full max-w-xs focus:outline-none"/>
-                        <img src="@/assets/arrow-right.svg" alt="Arrow" class="mt-3 h-4" />
+                        <input 
+                          v-model="footerEmail"
+                          type="email" 
+                          placeholder="Email"
+                          class="text-[#3C646F] font-bold mt-2 p-2 rounded-md w-full max-w-xs focus:outline-none"
+                          @keyup.enter="footerEmailSubmit"
+                        />
+                        <img 
+                          src="@/assets/arrow-right.svg" 
+                          alt="Arrow" 
+                          class="mt-3 h-4 cursor-pointer"
+                          @click="footerEmailSubmit"
+                         />
                     </div>
                     
                     <img src="@/assets/footer-line.svg" class="w-89">
@@ -173,7 +183,19 @@
     </div>
 </template>
 
-<script setup></script>
+<script setup>
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+const footerEmail = ref('')
+const router = useRouter()
+
+function footerEmailSubmit() {
+  if (footerEmail.value) {
+    router.push({ path: '/contactus', query: { email: footerEmail.value } })
+  }
+}
+</script>
 
 <style scoped>
 .hoverable-card:hover {

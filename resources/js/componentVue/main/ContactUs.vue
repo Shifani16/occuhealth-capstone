@@ -28,19 +28,20 @@
             <div class="max-w-6xl mx-auto flex flex-row lg:flex-row items-center justify-between gap-10">
                 <div class="container-open-sans sm:text-[14px] md:text-[18px] lg:text-[20px] w-full  sm:w-1/2 md:w-1/2 lg:w-1/2 space-y-4">
                     <input
+                    v-model="email"
                        type="email"
                        placeholder="Email"
-                       class="w-full p-3 rounded-md bg-[#299BB8] placeholder-white text-white font-semibold focus:outline-none"
+                       class="w-full p-3 rounded-md bg-[#299BB8] placeholder-[#ABE0ED] text-white font-semibold focus:outline-none"
                     />
                     <input
                        type="text"
                        placeholder="Nomor Telepon"
-                       class="w-full p-3 rounded-md bg-[#299BB8] placeholder-white text-white font-semibold focus:outline-none"
+                       class="w-full p-3 rounded-md bg-[#299BB8] placeholder-[#ABE0ED] text-white font-semibold focus:outline-none"
                     />
                     <textarea
                        rows="5"
                        placeholder="Ketik Pesan Anda di sini..."
-                       class="w-full p-3 rounded-md bg-[#299BB8] placeholder-white text-white font-semibold focus:outline-none"
+                       class="w-full p-3 rounded-md bg-[#299BB8] placeholder-[#ABE0ED] text-white font-semibold focus:outline-none"
                     ></textarea>
                     <button class="w-full text-black py-2 border border-black rounded-md font-semibold hover:bg-[#C9EBF3] hover:border-[#C9EBF3] transition duration-200">
                         Kirim
@@ -64,9 +65,19 @@
                         lanjut, hubungi tim kami untuk solusi terbaik.
                     </p>
                     <div class="flex items-center gap-2 mb-2">
-                        <input type="email" placeholder="Email"
-                        class="text-[#3C646F] font-bold mt-2 p-2 rounded-md w-full max-w-xs focus:outline-none"/>
-                        <img src="@/assets/arrow-right.svg" alt="Arrow" class="mt-3 h-4" />
+                        <input 
+                          v-model="footerEmail"
+                          type="email" 
+                          placeholder="Email"
+                          class="text-[#3C646F] font-bold mt-2 p-2 rounded-md w-full max-w-xs focus:outline-none"
+                          @keyup.enter="footerEmailSubmit"
+                        />
+                        <img 
+                          src="@/assets/arrow-right.svg" 
+                          alt="Arrow" 
+                          class="mt-3 h-4 cursor-pointer"
+                          @click="footerEmailSubmit"
+                         />
                     </div>
                     
                     <img src="@/assets/footer-line.svg" class="w-89">
@@ -136,3 +147,26 @@
     font-family: "Open Sans", sans-serif;
 }
 </style>
+
+<script setup>
+import { onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+const email = ref('')
+
+onMounted(() => {
+  if (route.query.email) {
+    email.value = route.query.email
+  }
+})
+
+const footerEmail = ref('')
+// const router = useRoute()
+
+function footerEmailSubmit() {
+  if (footerEmail.value) {
+    window.location.href = `/contactus?email=${encodeURIComponent(footerEmail.value)}`
+  }
+}
+</script>
