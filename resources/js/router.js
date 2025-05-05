@@ -9,6 +9,8 @@ import AboutUs from './componentVue/main/AboutUs.vue'
 import ContactUs from './componentVue/main/ContactUs.vue'
 import OurService from './componentVue/main/OurService.vue'
 
+import Pasien from './componentVue/dashboard/pasien-dashboard/Pasien.vue'
+
 const routes = [
   { path: '/', redirect: '/login' },
   { path: '/login', name: 'Login', component: Login },
@@ -17,6 +19,7 @@ const routes = [
   { path: '/aboutus', name: 'AboutUs', component: AboutUs },
   { path: '/contactus', name:'ContactUs', component: ContactUs},
   { path: '/ourservice', name:'OurService', component: OurService},
+  { path: '/pasien', name:'Pasien', component: Pasien},
   { path: '/verify-reset/:user(.*)', redirect: '/' }
 ]
 
