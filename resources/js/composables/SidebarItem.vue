@@ -1,14 +1,19 @@
 <template>
   <div
-    class="flex items-center gap-2 rounded cursor-pointer hover:bg-gray-100"
-    :class="{ 'bg-[#C1D6E6] container-open-sans font-bold text-[#305879]': active }"
+  @click="handleClick"
+  class="flex items-center gap-2 rounded cursor-pointer hover:bg-gray-100"
+  :class="{ 'bg-[#C1D6E6] container-open-sans font-bold text-[#305879]': active }"
   >
-    <img :src="icons[icon]" class="h-12" />
-    <span v-if="!collapsed">{{ text }}</span>
+  <img :src="active ? icons[`${icon.replace('.svg', '')}-clicked.svg`] : icons[icon]" 
+      class="min-w-12 h-12" 
+  />
+  <span v-if="!collapsed">{{ text }}</span>
   </div>
 </template>
   
 <script setup>
+import { useRouter } from 'vue-router'
+
 import dashboardIcon from '@/assets/dashboard.svg'
 import dashboardHasilMCU from '@/assets/dashboard-hasil-mcu.svg'
 import dashboardHasilMCUClicked from '@/assets/dashboard-hasil-mcu-clicked.svg'
@@ -41,6 +46,15 @@ const props = defineProps({
   active: Boolean,
   collapsed: Boolean
 })
+
+const router = useRouter()
+const emit = defineEmits(['navigate'])
+
+function handleClick() {
+  emit('navigate', props.text)
+}
+
+
 </script>
 
 <style scoped>

@@ -10,6 +10,8 @@ import ContactUs from './componentVue/main/ContactUs.vue'
 import OurService from './componentVue/main/OurService.vue'
 
 import Pasien from './componentVue/dashboard/pasien-dashboard/Pasien.vue'
+import PasienDetail from './componentVue/dashboard/pasien-dashboard/PasienDetail.vue'
+import PasienEdit from './componentVue/dashboard/pasien-dashboard/PasienEdit.vue'
 
 const routes = [
   { path: '/', redirect: '/login' },
@@ -20,6 +22,8 @@ const routes = [
   { path: '/contactus', name:'ContactUs', component: ContactUs},
   { path: '/ourservice', name:'OurService', component: OurService},
   { path: '/pasien', name:'Pasien', component: Pasien},
+  { path: '/pasiendetail', name:'PasienDetail', component: PasienDetail},
+  { path: '/pasienedit', name:'PasienEdit', component: PasienEdit},
   { path: '/verify-reset/:user(.*)', redirect: '/' }
 ]
 
