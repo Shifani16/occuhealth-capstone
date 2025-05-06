@@ -2,23 +2,7 @@
     <!-- <link href="https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet"> -->
 
     <div class="aboutus">
-        <header class="bg-[#CAEAF2] px-10 py-6 flex justify-between items-center">
-            <div class="flex items-center gap-6">
-                <img src="@/assets/occuhelp-full-logo.svg" alt="OccuHelp Full Logo" class="h-15"/>
-            </div>
-                
-            <nav class="container-open-sans ml-auto hidden md:flex space-x-6 font-bold text-black">
-                <router-link to="/" class="hover:text-[#305879]">Dashboard</router-link>
-                <a href="#" class="text-[#305879] border-b-2 border-sky-800">Tentang Kami</a>
-                <router-link to="/ourservice" class="hover:text-[#305879]">Layanan Kami</router-link>
-                <router-link to="/contactus" class="hover:text-[#305879]">Kontak</router-link>
-            </nav>
-
-            <span class="h-10 ml-15">
-                <img src="@/assets/profileBlack.svg" class="h-8"/>
-            </span>
-        </header>
-
+        <Navbar />
         <!-- About Us: Introduction -->
         <section class="bg-[#8AD3E5] px-10 py-14 relative">
             <!-- <img src="@/assets/aboutus-bottom-half.svg" class="absolute bottom-0 left-0 w-full z-0" /> -->
@@ -184,6 +168,7 @@
 </template>
 
 <script setup>
+import Navbar from '@/componentVue/main/Navbar.vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 

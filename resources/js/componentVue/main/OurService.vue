@@ -1,21 +1,6 @@
 <template>
     <div class="ourservice">
-        <header class="bg-[#CAEAF2] px-10 py-6 flex justify-between items-center">
-            <div class="flex items-center gap-6">
-                <img src="@/assets/occuhelp-full-logo.svg" alt="OccuHelp Full Logo" class="h-15"/>
-            </div>
-                
-            <nav class="container-open-sans ml-auto hidden md:flex space-x-6 font-bold text-black">
-                <router-link to="/" class="hover:text-[#305879]">Dashboard</router-link>
-                <router-link to="/aboutus" class="hover:text-[#305879]">Tentang Kami</router-link>
-                <a href="#" class="text-[#305879] border-b-2 border-sky-800">Layanan Kami</a>
-                <router-link to="/contactus" class="hover:text-[#305879]">Kontak</router-link>
-            </nav>
-
-            <span class="h-10 ml-15">
-                <img src="@/assets/profileBlack.svg" class="h-8"/>
-            </span>
-        </header>
+        <Navbar />
 
         <section class="relative flex justify-center items-start px-4 md:px-0 mt-30 mb-10">
             <img
@@ -192,6 +177,7 @@
 </style>
 
 <script setup>
+import Navbar from '@/componentVue/main/Navbar.vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 

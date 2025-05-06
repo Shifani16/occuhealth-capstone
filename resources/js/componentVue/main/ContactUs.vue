@@ -1,21 +1,6 @@
 <template>
     <div class="contactus">
-        <header class="bg-[#CAEAF2] px-10 py-6 flex justify-between items-center">
-            <div class="flex items-center gap-6">
-                <img src="@/assets/occuhelp-full-logo.svg" alt="OccuHelp Full Logo" class="h-15"/>
-            </div>
-                
-            <nav class="container-open-sans ml-auto hidden md:flex space-x-6 font-bold text-black">
-                <router-link to="/" class="hover:text-[#305879]">Dashboard</router-link>
-                <router-link to="/aboutus" class="hover:text-[#305879]">Tentang Kami</router-link>
-                <router-link to="/ourservice" class="hover:text-[#305879]">Layanan Kami</router-link>
-                <a href="#" class="text-[#305879] border-b-2 border-sky-800">Kontak</a>
-            </nav>
-
-            <span class="h-10 ml-15">
-                <img src="@/assets/profileBlack.svg" class="h-8"/>
-            </span>
-        </header>
+        <Navbar />
 
         <section class="relative z-10 max-w-8xl ml-8 mt-10 mb-10 text-left px-4 ">
             <h2 class="container-nunito font-bold sm:text-[24px] md:text-[32px] lg:text-[36px]">Terima kasih atas ketertarikan Anda kepada kami.</h2>
@@ -149,6 +134,7 @@
 </style>
 
 <script setup>
+import Navbar from '@/componentVue/main/Navbar.vue'
 import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
