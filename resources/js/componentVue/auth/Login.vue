@@ -11,9 +11,11 @@
 
         <!-- Kanan -->
         <div class="w-1/2 flex items-center justify-center bg-[#FFFF]">
-            <div class="bg-[#D4ECF2] rounded-3xl shadow-md px-10 py-16 w-full max-w-md">
-              <!-- loading -->
-              <div
+            <div
+                class="bg-[#D4ECF2] rounded-3xl shadow-md px-10 py-16 w-full max-w-md"
+            >
+                <!-- loading -->
+                <div
                     v-if="loading"
                     class="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-40 rounded-3xl"
                 >
@@ -28,11 +30,15 @@
                         alt="Logo"
                         class="mx-auto mb-4 w-26 h-26 -mt-4"
                     />
-                    <h2 class="container-nunito text-left sm:text-2xl md:text 3xl lg:text-3xl font-bold text-[#3393AD] leading-snug">
+                    <h2
+                        class="container-nunito text-left sm:text-2xl md:text 3xl lg:text-3xl font-bold text-[#3393AD] leading-snug"
+                    >
                         Halo, <br />
                         <span class="font-bold">Selamat Datang Kembali!</span>
                     </h2>
-                    <p class="container-open-sans text-left text-sm text-[#3393AD] mt-2 mb-6">
+                    <p
+                        class="container-open-sans text-left text-sm text-[#3393AD] mt-2 mb-6"
+                    >
                         Masukkan NIP dan kata sandi untuk melanjutkan akses.
                     </p>
                 </div>
@@ -215,6 +221,14 @@ async function login() {
 
             if (response.data.token) {
                 localStorage.setItem("auth_token", response.data.token);
+
+                if (response.data.user) {
+                    localStorage.setItem(
+                        "user",
+                        JSON.stringify(response.data.user)
+                    );
+                }
+
                 router.push("/aboutus");
             }
         } catch (error) {
