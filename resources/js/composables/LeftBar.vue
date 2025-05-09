@@ -42,7 +42,8 @@
                 icon="dashboard-hasil-mcu.svg"
                 text="Hasil MCU"
                 :collapsed="collapsed"
-                :active="active === 'Hasil MCU'"
+                :active="active === 'HasilMCU'"
+                @navigate="handleNavigation"
             />
             <SidebarItem
                 icon="dashboard-rekapitulasi.svg"
@@ -169,6 +170,21 @@ function handleNavigation(item) {
             break;
         case "Keluar":
             showLogoutPopup.value = true;
+            break;
+        case "Hasil MCU":
+            router.push("/hasilmcu");
+            break;
+        case "Rekapitulasi":
+            router.push("/rekapitulasi");
+            break;
+        case "Report":
+            router.push("/report");
+            break;
+        case "Kontak":
+            router.push("/contactus");
+            break;
+        case "Layanan Kami":
+            router.push("/ourservice");
             break;
     }
 }

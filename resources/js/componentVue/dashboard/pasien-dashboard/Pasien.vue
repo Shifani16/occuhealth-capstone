@@ -44,7 +44,7 @@
                         <span class="ml-2 text-[14px] font-semibold"
                             >entries</span
                         >
-                        <!-- <img src="@/assets/arrow-down.svg" class="absolute right-2 top-1/2 -translate-y-1/2 h-3 pointer-events-none" /> -->
+                        <img src="@/assets/arrow-down.svg" class="absolute right-16 top-1/2 -translate-y-1/2 h-3 pointer-events-none" />
                     </div>
 
                     <div class="relative">

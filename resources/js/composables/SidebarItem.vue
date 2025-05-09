@@ -5,7 +5,7 @@
   :class="{ 'bg-[#C1D6E6] container-open-sans font-bold text-[#305879]': active }"
   >
   <img :src="active ? icons[`${icon.replace('.svg', '')}-clicked.svg`] : icons[icon]" 
-      class="min-w-12 h-12" 
+      class="max-w-12 h-12" 
   />
   <span v-if="!collapsed">{{ text }}</span>
   </div>

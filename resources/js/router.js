@@ -13,6 +13,10 @@ import Pasien from './componentVue/dashboard/pasien-dashboard/Pasien.vue'
 import PasienDetail from './componentVue/dashboard/pasien-dashboard/PasienDetail.vue'
 import PasienEdit from './componentVue/dashboard/pasien-dashboard/PasienEdit.vue'
 
+import HasilMCU from './componentVue/dashboard/hasil-mcu-dashboard/HasilMCU.vue'
+import HasilMCUDetail from './componentVue/dashboard/hasil-mcu-dashboard/HasilMCUDetail.vue'
+import HasilMCUEdit from './componentVue/dashboard/hasil-mcu-dashboard/HasilMCUEdit.vue'
+
 const routes = [
   { path: '/', redirect: '/login' },
   { path: '/login', name: 'Login', component: Login },
@@ -24,6 +28,9 @@ const routes = [
   { path: '/pasien', name:'Pasien', component: Pasien},
   { path: '/pasiendetail', name:'PasienDetail', component: PasienDetail},
   { path: '/pasienedit', name:'PasienEdit', component: PasienEdit},
+  { path: '/hasilmcu', name:'HasilMCU', component: HasilMCU},
+  { path: '/hasilmcudetail', name:'HasilMCUDetail', component: HasilMCUDetail},
+  { path: '/hasilmcuedit', name:'HasilMCUEdit', component: HasilMCUEdit},
   { path: '/verify-reset/:user(.*)', redirect: '/' }
 ]
 
