@@ -3,8 +3,12 @@
 namespace App\Http\Controllers\dashboard;
 
 use App\Models\McuPatient;
-use App\Http\Controllers\Controller;
+use App\Models\Patient;   
+use App\Models\McuResult; 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
 
 class McuPatientController extends Controller
 {
@@ -16,13 +20,32 @@ class McuPatientController extends Controller
     }
 
     // Get one MCU patient
-    public function show($id)
+        public function show($id)
     {
-        $patient = McuPatient::with('patient')->find($id);
-        if (!$patient) {
-            return response()->json(['message' => 'MCU Patient not found'], 404);
+        try {
+            $mcuPatient = McuPatient::with('patient')->findOrFail($id);
+
+            $individualResults = McuResult::where('patient_id', $mcuPatient->patient_id)
+                                          ->where('result_date', $mcuPatient->examination_date) 
+                                          ->get(); 
+
+         
+            $saran = $mcuPatient->saran ?? null;
+
+            return response()->json([
+                'mcu_session' => $mcuPatient,
+                'patient' => $mcuPatient->patient,
+                'individual_results' => $individualResults,
+                'saran' => $saran 
+            ]);
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            Log::warning("MCU Patient with ID {$id} not found in show method.");
+            return response()->json(['error' => 'Hasil MCU tidak ditemukan.'], 404);
+        } catch (\Exception $e) {
+            Log::error('Error fetching specific MCU details: ' . $e->getMessage(), ['exception' => $e]);
+            return response()->json(['error' => 'Terjadi kesalahan saat memuat data hasil MCU.'], 500);
         }
-        return response()->json($patient);
     }
 
     // Create new MCU patient
@@ -43,23 +66,6 @@ class McuPatientController extends Controller
         ], 201);
     }
 
-    // Update MCU patient
-    public function update(Request $request, $id)
-    {
-        $mcuPatient = McuPatient::find($id);
-
-        if (!$mcuPatient) {
-            return response()->json(['message' => 'MCU Patient not found'], 404);
-        }
-
-        $mcuPatient->update($request->all());
-
-        return response()->json([
-            'message' => 'MCU patient updated successfully',
-            'data' => $mcuPatient,
-        ]);
-    }
-
     // Delete MCU patient
     public function destroy($id)
     {
@@ -72,6 +78,52 @@ class McuPatientController extends Controller
         $mcuPatient->delete();
 
         return response()->json(['message' => 'MCU patient deleted successfully']);
+    }
+
+    // Update MCU patient
+    public function update(Request $request, $id)
+    {
+        // Validate incoming request data
+        $request->validate([
+            'saran' => 'nullable|string', 
+            'individual_results' => 'required|array',
+            'individual_results.*.id' => 'required|exists:mcu_results,id', 
+            'individual_results.*.result' => 'nullable|string',
+        ]);
+
+        DB::beginTransaction(); 
+
+        try {
+            $mcuPatient = McuPatient::findOrFail($id);
+
+            $mcuPatient->saran = $request->input('saran');
+            $mcuPatient->save();
+
+            $resultsToUpdate = $request->input('individual_results');
+
+            foreach ($resultsToUpdate as $resultData) {
+                $mcuResult = McuResult::findOrFail($resultData['id']);
+
+                $mcuResult->result = $resultData['result'];
+                $mcuResult->save();
+            }
+
+            DB::commit(); 
+
+            Log::info("MCU Patient ID {$id} details updated successfully.");
+
+            return response()->json(['message' => 'Perubahan berhasil disimpan!', 'data' => $mcuPatient]);
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+             DB::rollBack();
+             Log::warning("Update failed: Model not found.", ['id' => $id, 'error' => $e->getMessage()]);
+             return response()->json(['error' => 'Data yang ingin diubah tidak ditemukan.'], 404);
+
+        } catch (\Exception $e) {
+            DB::rollBack(); 
+            Log::error('Error updating MCU details: ' . $e->getMessage(), ['exception' => $e, 'trace' => $e->getTraceAsString()]);
+            return response()->json(['error' => 'Terjadi kesalahan saat menyimpan perubahan.', 'details' => $e->getMessage()], 500);
+        }
     }
     
 }

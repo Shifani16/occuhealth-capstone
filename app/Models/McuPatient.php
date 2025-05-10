@@ -11,7 +11,8 @@ class McuPatient extends Model
         'name',
         'examination_date',
         'examination_type',
-        'status'
+        'status',
+        'saran',
     ];
 
     protected $casts = [

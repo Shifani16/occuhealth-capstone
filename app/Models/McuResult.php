@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class McuResult extends Model
 {
     protected $fillable = [
-        'mcu_patient_id', 
+        'patient_id', 
         'category', 
         'result', 
         'result_date'

@@ -20,55 +20,82 @@
                     Hasil Medical Check Up
                 </h1>
 
-                <div class="ml-7 flex justify-between items-center max-w-7xl">
-                    <h2 class="container-nunito text-[32px] font-bold mb-1">{{ pasien.nama }}</h2>
-                    <div
-                    class="container-open-sans bg-[#185C6D] text-white text-sm rounded-full px-4 py-1 text-[16px] font-bold whitespace-nowrap"
-                    >
-                        {{ pasien.no_rekam_medis }}
-                    </div>
+                <!-- Conditional rendering for loading, error, and data -->
+                <div v-if="loading" class="ml-7 mt-8 text-center text-[#3393AD]">
+                     Memuat data hasil MCU...
                 </div>
 
-                <hr class="ml-7 mt-3 mb-3 border-t-3 border-[#185C6D]" />
+                 <div v-else-if="fetchError" class="ml-7 mt-8 text-center text-red-600">
+                     Error: {{ fetchError }}
+                     <br>
+                     <!-- Add a retry button -->
+                     <button @click="fetchMcuDetails(route.params.id)" class="mt-2 text-[#3393AD] underline">Coba Lagi</button>
+                 </div>
 
-                <div class="ml-7 mr-7 mt-10">
-                    <table class="lg:w-[60%] text-left border-collapse container-open-sans text-[16px]">
-                        <thead>
-                            <tr class="bg-[#E6F6F9] text-[#185C6D] font-bold">
-                                <th class="py-3 px-4 border border-[#C2D6DB] w-[40%]">Pemeriksaan</th>
-                                <th class="py-3 px-4 border border-[#C2D6DB] w-[30%]">Hasil</th>
-                                <th class="py-3 px-4 border border-[#C2D6DB] w-[30%]">Tanggal Periksa</th>
-                            </tr>
-                        </thead>
+                <template v-else-if="pasien && hasilMCU.length > 0">
+                     <div class="ml-7 flex justify-between items-center max-w-7xl">
+                         <h2 class="container-nunito text-[32px] font-bold mb-1">{{ pasien.name || 'N/A' }}</h2>
+                         <div
+                         class="container-open-sans bg-[#185C6D] text-white text-sm rounded-full px-4 py-1 text-[16px] font-bold whitespace-nowrap"
+                         >
+                             {{ pasien.med_record_id || pasien.patient_id || 'N/A' }}
+                         </div>
+                     </div>
 
-                        <tbody>
-                            <tr
-                                v-for="(hasil, index) in hasilMCU"
-                                :key="index"
-                                class="even:bg-[#E6F6F9] odd:bg-white"
-                            >
-                                <td class="py-2 px-4">{{ hasil.pemeriksaan }}</td>
-                                <td class="py-2 px-4">{{ hasil.hasil }}</td>
-                                <td class="py-2 px-4">{{ hasil.tanggal }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                     <hr class="ml-7 mt-3 mb-3 border-t-3 border-[#185C6D]" />
+
+                     <div class="ml-7 mr-7 mt-10">
+                         <table class="lg:w-[60%] text-left border-collapse container-open-sans text-[16px]">
+                             <thead>
+                                 <tr class="bg-[#E6F6F9] text-[#185C6D] font-bold">
+                                     <th class="py-3 px-4 border border-[#C2D6DB] w-[40%]">Pemeriksaan</th>
+                                     <th class="py-3 px-4 border border-[#C2D6DB] w-[30%]">Hasil</th>
+                                     <th class="py-3 px-4 border border-[#C2D6DB] w-[30%]">Tanggal Periksa</th>
+                                 </tr>
+                             </thead>
+
+                             <tbody>
+                                 <tr
+                                     v-for="(hasil, index) in hasilMCU"
+                                     :key="hasil.id || index" 
+                                     class="even:bg-[#E6F6F9] odd:bg-white"
+                                 >
+                                     
+                                     <td class="py-2 px-4 border border-[#C2D6DB]">{{ hasil.category || 'N/A' }}</td>
+                                     <td class="py-2 px-4 border border-[#C2D6DB]">{{ hasil.result || 'N/A' }}</td>
+                                     <td class="py-2 px-4 border border-[#C2D6DB]">{{ formatBackendDate(hasil.result_date) }}</td> <!-- Format date for display -->
+                                 </tr>
+                             </tbody>
+                         </table>
+
+                         <div v-if="saran" class="mt-10 ml-7">
+                             <h3 class="block text-black text-lg font-semibold mb-2 container-open-sans">Saran</h3>
+                             <p class="bg-[#E6F6F9] text-black rounded p-3">{{ saran }}</p>
+                         </div>
+
+                     </div>
+
+                     <div class="flex justify-end gap-4 mt-14 text-[18px] container-open-sans">
+                         <button
+                             @click="goToEdit(route.params.id)"
+                             @mouseover="hoveringEdit = true"
+                             @mouseleave="hoveringEdit = false"
+                             :class="[
+                                 'border border-[#3393AD] font-semibold px-4 py-2 rounded flex items-center gap-2 transition',
+                                 hoveringEdit ? 'bg-[#E4EBF1] border-[#E4EBF1] text-[#3393AD]' : 'text-[#3393AD)'
+                             ]"
+                         >
+                             <img src="@/assets/edit.svg" class="h-5"/>
+                             Edit
+                         </button>
+                     </div>
+                </template>
+
+                <div v-else class="ml-7 mt-8 text-center text-gray-600">
+                    Data hasil MCU tidak tersedia atau tidak lengkap.
                 </div>
 
-                <div class="flex justify-end gap-4 mt-14 text-[18px] container-open-sans">
-                    <button
-                        @click="goToEdit"
-                        @mouseover="hoveringEdit = true"
-                        @mouseleave="hoveringEdit = false"
-                        :class="[
-                            'border border-[#3393AD] font-semibold px-4 py-2 rounded flex items-center gap-2 transition',
-                            hoveringEdit ? 'bg-[#E4EBF1] border-[#E4EBF1] text-[#3393AD]' : 'text-[#3393AD]'
-                        ]"
-                    >
-                        <img src="@/assets/edit.svg" class="h-5"/>
-                        Edit
-                    </button>
-                </div>
+
             </main>
         </div>
     </div>
@@ -76,77 +103,126 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router'; 
+import axios from 'axios'; 
 
 import LeftBar from '../../../composables/LeftBar.vue';
 
 const route = useRoute();
-const pasien = ref({});
+const router = useRouter();
+
+const pasien = ref(null);
 const hasilMCU = ref([]);
+const saran = ref('');
+
+const loading = ref(true);
+const fetchError = ref(null); 
+
 const hoveringEdit = ref(false);
 
-onMounted(() => {
-  pasien.value = route.query;
-  hasilMCU.value = hasilData;
-});
+async function fetchMcuDetails(id) {
+    loading.value = true;
+    fetchError.value = null; 
+    pasien.value = null;
+    hasilMCU.value = [];
+    saran.value = '';
 
-function goToEdit(pasien) {
-    router.push({
-        name: "HasilMCUEdit",
-        query: { ...pasien },
-    });
+
+    try {
+        const response = await axios.get(`/api/mcu-patients/${id}`);
+
+        console.log("Fetched MCU Details:", response.data);
+
+        // --- Assign fetched data to refs ---
+        if (response.data) {
+             pasien.value = response.data.patient || null;
+             saran.value = response.data.saran || '';
+
+             if (Array.isArray(response.data.individual_results)) {
+                hasilMCU.value = response.data.individual_results.map(res => ({
+                     ...res, 
+                 }));
+            } else {
+                 console.warn("Individual MCU results array not found or is not an array in response:", response.data);
+                 hasilMCU.value = []; 
+            }
+
+        } else {
+            fetchError.value = 'Data hasil MCU tidak ditemukan di server.';
+        }
+
+
+    } catch (error) {
+        console.error('Error fetching MCU details:', error);
+        fetchError.value = 'Gagal memuat detail hasil MCU.';
+
+        if (error.response) {
+             if (error.response.status === 404) {
+                 fetchError.value = 'Hasil MCU dengan ID ini tidak ditemukan.';
+             } else if (error.response.data && error.response.data.error) {
+                  fetchError.value = error.response.data.error;
+             } else if (error.response.data && error.response.data.message) {
+                  fetchError.value = error.response.data.message;
+             } else if (typeof error.response.data === 'string') {
+                  fetchError.value = error.response.data;
+             } else {
+                fetchError.value = `Gagal memuat data: ${error.response.status} ${error.response.statusText}`;
+             }
+         } else if (error.request) {
+             fetchError.value = 'Tidak ada respons dari server saat memuat data.';
+         } else {
+             fetchError.value = `Terjadi kesalahan saat mengambil data: ${error.message}`;
+         }
+
+        pasien.value = null;
+        hasilMCU.value = [];
+        saran.value = '';
+
+    } finally {
+        loading.value = false; 
+    }
 }
 
-// Data dummy 
-const hasilData = [
-  { pemeriksaan: "Kreatinin", hasil: "0,98", tanggal: "29/03/2025" },
-  { pemeriksaan: "eGFR", hasil: "100", tanggal: "29/03/2025" },
-  { pemeriksaan: "Ureum", hasil: "27,3", tanggal: "29/03/2025" },
-  { pemeriksaan: "Glukosa Puasa", hasil: "74,4", tanggal: "29/03/2025" },
-  { pemeriksaan: "Anti Hbs", hasil: "550", tanggal: "29/03/2025" },
-  { pemeriksaan: "HBsAg", hasil: "Negatif", tanggal: "29/03/2025" },
-  { pemeriksaan: "Asam Urat", hasil: "6,8", tanggal: "29/03/2025" },
-  { pemeriksaan: "Basofil", hasil: "0,5", tanggal: "29/03/2025" },
-  { pemeriksaan: "Eosinofil", hasil: "1,3", tanggal: "29/03/2025" },
-  { pemeriksaan: "Hemoglobin", hasil: "12,6", tanggal: "29/03/2025" },
-  { pemeriksaan: "Hematokrit", hasil: "40,8", tanggal: "29/03/2025" },
-  { pemeriksaan: "Trombosit", hasil: "174", tanggal: "29/03/2025" },
-  { pemeriksaan: "Eritrosit", hasil: "4,57", tanggal: "29/03/2025" },
-  { pemeriksaan: "Leukosit", hasil: "8,7", tanggal: "29/03/2025" },
-  { pemeriksaan: "MCH", hasil: "28,4", tanggal: "29/03/2025" },
-  { pemeriksaan: "MCHC", hasil: "34,6", tanggal: "29/03/2025" },
-  { pemeriksaan: "MCV", hasil: "96,6", tanggal: "29/03/2025" },
-  { pemeriksaan: "Limfosit", hasil: "34,4", tanggal: "29/03/2025" },
-  { pemeriksaan: "Monosit", hasil: "3,8", tanggal: "29/03/2025" },
-  { pemeriksaan: "Neutrofil", hasil: "64,7", tanggal: "29/03/2025" },
-  { pemeriksaan: "Neutrofil Limfosit", hasil: "2", tanggal: "29/03/2025" },
-  { pemeriksaan: "Kolesterol HDL", hasil: "53,8", tanggal: "29/03/2025" },
-  { pemeriksaan: "Kolesterol LDL", hasil: "104,8", tanggal: "29/03/2025" },
-  { pemeriksaan: "Trigliserid", hasil: "115,1", tanggal: "29/03/2025" },
-  { pemeriksaan: "SGOT", hasil: "2,7", tanggal: "29/03/2025" },
-  { pemeriksaan: "SGTP", hasil: "18,9", tanggal: "29/03/2025" },
-  { pemeriksaan: "Kolestrol", hasil: "190,2", tanggal: "29/03/2025" },
-  { pemeriksaan: "PH", hasil: "5,7", tanggal: "29/03/2025" },
-  { pemeriksaan: "Warna", hasil: "Kuning", tanggal: "29/03/2025" },
-  { pemeriksaan: "Kejernihan", hasil: "Jernih", tanggal: "29/03/2025" },
-  { pemeriksaan: "Leukosit (Urine)", hasil: "Negatif", tanggal: "29/03/2025" },
-  { pemeriksaan: "Eritosit (Urine)", hasil: "Negatif", tanggal: "29/03/2025" },
-  { pemeriksaan: "Epitel", hasil: "Sedikit", tanggal: "29/03/2025" },
-  { pemeriksaan: "Bakteri", hasil: "Negatif", tanggal: "29/03/2025" },
-  { pemeriksaan: "Silinder", hasil: "Negatif", tanggal: "29/03/2025" },
-  { pemeriksaan: "Kristal", hasil: "Negatif", tanggal: "29/03/2025" },
-  { pemeriksaan: "Berat Jenis", hasil: "1,014", tanggal: "29/03/2025" },
-  { pemeriksaan: "Protein (Urine)", hasil: "Negatif", tanggal: "29/03/2025" },
-  { pemeriksaan: "Glukosa (Urine)", hasil: "Negatif", tanggal: "29/03/2025" },
-  { pemeriksaan: "Keton", hasil: "Negatif", tanggal: "29/03/2025" },
-  { pemeriksaan: "Darah (Urine)", hasil: "Negatif", tanggal: "29/03/2025" },
-  { pemeriksaan: "Bilirubin", hasil: "Negatif", tanggal: "29/03/2025" },
-  { pemeriksaan: "Urobilinogen", hasil: "Normal", tanggal: "29/03/2025" },
-  { pemeriksaan: "Nitrit", hasil: "Negatif", tanggal: "29/03/2025" },
-  { pemeriksaan: "Leukosit Esteras", hasil: "Negatif", tanggal: "29/03/2025" },
-  { pemeriksaan: "Albumin Kreatinin", hasil: "26,7", tanggal: "29/03/2025" },
-  { pemeriksaan: "Buta Warna", hasil: "Normal", tanggal: "29/03/2025" },
-];
+function formatBackendDate(dateString) {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+
+    if (!isNaN(date.getTime())) {
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+
+    }
+
+    console.warn("Could not parse date string for formatting:", dateString);
+    return dateString; 
+}
+
+onMounted(() => {
+    const mcuSessionId = route.params.id; 
+    if (mcuSessionId) {
+        fetchMcuDetails(mcuSessionId);
+    } else {
+        fetchError.value = "ID Hasil MCU tidak ditemukan di URL.";
+        loading.value = false;
+    }
+});
+
+function goToEdit(id) { 
+    console.log("Navigating to edit for MCU Session ID:", id);
+     if (id) {
+        router.push({
+            name: "HasilMCUEdit",
+            params: { id: id }, 
+        });
+     } else {
+         console.error("Cannot navigate to edit: MCU Session ID is missing.");
+         fetchError.value = "Tidak dapat mengedit: ID sesi MCU hilang."; 
+     }
+}
+
+
 </script>
 
 <style scoped>
@@ -155,5 +231,12 @@ const hasilData = [
 }
 .container-open-sans {
   font-family: 'Open Sans', sans-serif;
+}
+
+table, th, td {
+    border: 1px solid #e0e0e0; 
+}
+thead th {
+    background-color: #f0f0f0;
 }
 </style>

@@ -14,6 +14,7 @@
         </header>
 
         <div class="mt-20 flex min-h-screen">
+            <!-- Left Bar -->
             <LeftBar active="Pasien" />
 
             <main class="flex-1 p-6">
@@ -179,8 +180,8 @@
                                         <tr
                                             v-for="(
                                                 item, index
-                                            ) in searchPasienList"
-                                            :key="item.no_pasien"
+                                            ) in filteredAndPaginatedPasien"
+                                            :key="item.id || item.no_pasien"
                                             class="container-open-sans odd:bg-[#E6F6F9]"
                                         >
                                             <td class="px-4 py-2">
@@ -232,9 +233,7 @@
                                                     />
                                                 </button>
                                                 <button
-                                                    @click="
-                                                        showDeleteConfirm = true
-                                                    "
+                                                    @click="selectPasienToDelete(item)"
                                                     class="cursor-pointer w-10 h-10 object-contain"
                                                 >
                                                     <img
@@ -308,7 +307,7 @@
                 </p>
                 <div class="flex justify-center">
                     <button
-                        @click="showPopUp"
+                        @click="showSuccessPopup = false"
                         class="border border-white text-white px-4 py-2 rounded hover:bg-white hover:text-[#27394B] font-semibold"
                     >
                         Tutup
@@ -320,53 +319,149 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
+import axios from "axios";
 
-import SidebarItem from "../../../composables/SidebarItem.vue";
 import LeftBar from "../../../composables/LeftBar.vue";
-import arrowRight from "@/assets/double-arrow-right.svg";
-import arrowLeft from "@/assets/double-arrow-left.svg";
-import logout from "@/assets/logout.svg";
-import logoutHover from "@/assets/logout-hover.svg";
-import Actioninfo from "@/assets/action-info.svg";
-import Actionedit from "@/assets/action-edit.svg";
-import Actiondelete from "@/assets/action-delete.svg";
 
+// --- Refs and State ---
 const collapsed = ref(false);
 const hovering = ref(false);
-const showPopUp = ref(false);
+
+const pasienList = ref([]); 
+const loading = ref(false);
+const errorMessage = ref(""); 
+const successMessage = ref(""); 
+
 const showDeleteConfirm = ref(false);
 const showSuccessPopup = ref(false);
-const searchQuery = ref("");
+const showErrorPopup = ref(false);
+const pasienToDelete = ref(null); 
+const showPopUp = ref(false);
 
+const searchQuery = ref("");
 const entriesToShow = ref(10);
+const currentPage = ref(1);
+
 const router = useRouter();
 
-const currentPage = ref(1);
+// --- Data Fetching ---
+async function fetchPasienData() {
+    loading.value = true;
+    errorMessage.value = ""; 
+    try {
+        const response = await axios.get("/api/patients");
+
+        console.log("Full Pasien API response:", response); 
+        console.log("Pasien API response data:", response.data);
+
+        const responseData = response.data.patients;
+
+        if (response.data && Array.isArray(responseData)) { 
+             pasienList.value = responseData.map(item => {
+              
+                const examinationDate = item.examination_date
+                    ? new Date(item.examination_date).toLocaleDateString('id-ID', {
+                          year: 'numeric',
+                          month: '2-digit',
+                          day: '2-digit'
+                      })
+                    : 'N/A';
+
+                const birthDate = item.birth_date
+                    ? new Date(item.birth_date).toLocaleDateString('id-ID', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                      })
+                    : '';
+                const tempatTanggalLahir = item.birth_place && birthDate
+                    ? `${item.birth_place}, ${birthDate}`
+                    : item.birth_place || birthDate || 'N/A';
+
+                return {
+                    id: item.id,
+                    nama: item.name || 'N/A', 
+                    tanggal_pemeriksaan: examinationDate, 
+                    no_rekam_medis: item.med_record_id || 'N/A', 
+                    no_pasien: item.patient_id || 'N/A',
+                    jenis_kelamin: item.gender || 'N/A', 
+                    umur: item.age?.toString() || 'N/A', 
+                    tempat_tanggal_lahir: tempatTanggalLahir, 
+                    alamat: item.address || 'N/A',
+                };
+            });
+        } else {
+         
+             console.error("API response format for /api/patients is not as expected:", response.data);
+             pasienList.value = [];
+             errorMessage.value = 'Format data dari server tidak sesuai.'; 
+            
+              if (response.data && (response.data.message || response.data.error)) {
+                  errorMessage.value = response.data.message || response.data.error;
+              }
+             showErrorPopup.value = true; 
+        }
+
+    } catch (error) {
+        console.error("Error fetching Pasien data:", error);
+        errorMessage.value = 'Gagal mengambil data pasien.';
+         if (error.response && error.response.data) {
+             if (error.response.data.message) {
+                  errorMessage.value = error.response.data.message;
+             } else if (error.response.data.error) {
+                  errorMessage.value = error.response.data.error;
+             } else if (typeof error.response.data === 'string') {
+                  errorMessage.value = error.response.data;
+             }
+         } else if (error.message) {
+             errorMessage.value = `Gagal mengambil data: ${error.message}`;
+         }
+        showErrorPopup.value = true; 
+    } finally {
+        loading.value = false;
+    }
+}
+
+onMounted(() => {
+    fetchPasienData();
+});
+
+
+// --- Pagination and Filtering ---
+const searchPasienListRaw = computed(() => {
+    const query = searchQuery.value ? searchQuery.value.toLowerCase() : '';
+    if (!query) {
+        return pasienList.value;
+    }
+    return pasienList.value.filter(
+        (pasien) =>
+            pasien.nama?.toLowerCase().includes(query) ||
+            pasien.no_rekam_medis?.toLowerCase().includes(query) ||
+            pasien.no_pasien?.toLowerCase().includes(query) ||
+            pasien.tanggal_pemeriksaan?.toLowerCase().includes(query) ||
+            pasien.jenis_kelamin?.toLowerCase().includes(query) ||
+            pasien.umur?.toLowerCase().includes(query) ||
+            pasien.tempat_tanggal_lahir?.toLowerCase().includes(query) ||
+            pasien.alamat?.toLowerCase().includes(query)
+    );
+});
 
 const totalPages = computed(() => {
     return Math.ceil(searchPasienListRaw.value.length / entriesToShow.value);
 });
 
-const searchPasienListRaw = computed(() => {
-    return pasienList.value.filter(
-        (pasien) =>
-            pasien.nama
-                .toLowerCase()
-                .includes(searchQuery.value.toLowerCase()) ||
-            pasien.no_rekam_medis
-                .toLowerCase()
-                .includes(searchQuery.value.toLowerCase()) ||
-            pasien.no_pasien
-                .toLowerCase()
-                .includes(searchQuery.value.toLowerCase())
-    );
+watch([entriesToShow, searchQuery], () => {
+    currentPage.value = 1;
 });
 
-const searchPasienList = computed(() => {
-    const start = (currentPage.value - 1) * entriesToShow.value;
+const filteredAndPaginatedPasien = computed(() => {
+    const safeCurrentPage = Math.max(1, Math.min(currentPage.value, totalPages.value || 1));
+
+    const start = (safeCurrentPage - 1) * entriesToShow.value;
     const end = start + entriesToShow.value;
+
     return searchPasienListRaw.value.slice(start, end);
 });
 
@@ -383,57 +478,141 @@ function prevPage() {
 }
 
 function goToPage(page) {
-    currentPage.value = page;
+     if (page >= 1 && page <= totalPages.value) {
+        currentPage.value = page;
+    } else if (totalPages.value === 0) {
+         currentPage.value = 1;
+    }
 }
 
-function confirmDelete() {
+
+// --- Delete Handlers ---
+function selectPasienToDelete(pasien) {
+    console.log("selectPasienToDelete triggered for:", pasien);
+    pasienToDelete.value = pasien;
+    showDeleteConfirm.value = true;
+    
+    console.log("showDeleteConfirm set to:", showDeleteConfirm.value);
+    showSuccessPopup.value = false;
+    showErrorPopup.value = false;
+}
+
+function cancelDelete() {
     showDeleteConfirm.value = false;
-    showSuccessPopup.value = true;
-    setTimeout(() => {
-        showSuccessPopup.value = false;
-    }, 2000);
+    pasienToDelete.value = null;
 }
 
-function toggleSidebar() {
-    collapsed.value = !collapsed.value;
+async function confirmDelete() {
+    if (!pasienToDelete.value || !pasienToDelete.value.id) {
+        console.error("No patient selected for deletion or patient ID missing.");
+        cancelDelete();
+        errorMessage.value = 'Terjadi kesalahan: Pasien tidak ditemukan atau ID hilang.';
+        showErrorPopup.value = true;
+        return;
+    }
+
+    showDeleteConfirm.value = false;
+    loading.value = true;
+    errorMessage.value = "";
+
+    try {
+        const response = await axios.delete(`/api/patients/${pasienToDelete.value.id}`);
+        console.log("Delete successful:", response.data);
+
+        successMessage.value = 'Data pasien berhasil dihapus';
+        showSuccessPopup.value = true;
+
+        pasienList.value = pasienList.value.filter(p => p.id !== pasienToDelete.value.id);
+
+        pasienToDelete.value = null;
+
+        const newFilteredCount = pasienList.value.filter(
+            (pasien) =>
+                 pasien.nama?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+                 pasien.no_rekam_medis?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+                 pasien.no_pasien?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+                 pasien.tanggal_pemeriksaan?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+                 pasien.jenis_kelamin?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+                 pasien.umur?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+                 pasien.tempat_tanggal_lahir?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+                 pasien.alamat?.toLowerCase().includes(searchQuery.value.toLowerCase())
+         ).length;
+
+        const newTotalPages = Math.ceil(newFilteredCount / entriesToShow.value);
+
+         if (currentPage.value > newTotalPages && newTotalPages > 0) {
+             currentPage.value = newTotalPages;
+         } else if (newTotalPages === 0) {
+              currentPage.value = 1;
+         }
+
+
+    } catch (error) {
+        console.error("Error deleting patient:", error);
+        errorMessage.value = 'Gagal menghapus data pasien.';
+        if (error.response && error.response.data) {
+            if (error.response.data.message) {
+                 errorMessage.value = error.response.data.message;
+            } else if (error.response.data.error) {
+                 errorMessage.value = error.response.data.error;
+            } else if (typeof error.response.data === 'string') {
+                 errorMessage.value = error.response.data;
+            }
+        }
+        showErrorPopup.value = true;
+
+    } finally {
+         loading.value = false;
+         pasienToDelete.value = null;
+    }
 }
 
+
+// --- Navigation ---
 function goToDetail(pasien) {
-    router.push({
-        name: "PasienDetail",
-        query: { ...pasien },
-    });
+    console.log("Navigate to detail for:", pasien);
+    if (pasien && pasien.id) {
+        router.push({
+            name: "PasienDetail",
+            params: { id: pasien.id },
+            query: { ...pasien }
+        });
+    } else if (pasien && pasien.no_pasien) {
+         console.warn("Backend ID missing, navigating using no_pasien:", pasien);
+         router.push({
+            name: "PasienDetail",
+            params: { id: pasien.no_pasien },
+            query: { ...pasien }
+        });
+    } else {
+        console.error("Cannot navigate to detail: Patient object or identifier is missing", pasien);
+         errorMessage.value = "Tidak dapat melihat detail: ID pasien hilang.";
+         showErrorPopup.value = true;
+    }
 }
 
 function goToEdit(pasien) {
-    router.push({
-        name: "PasienEdit",
-        query: { ...pasien },
-    });
+    console.log("Navigate to edit for:", pasien);
+     if (pasien && pasien.id) {
+        router.push({
+            name: "PasienEdit",
+            params: { id: pasien.id },
+             query: { ...pasien }
+         });
+     } else if (pasien && pasien.no_pasien) {
+         console.warn("Backend ID missing, navigating using no_pasien:", pasien);
+          router.push({
+            name: "PasienEdit",
+            params: { id: pasien.no_pasien },
+             query: { ...pasien }
+         });
+     } else {
+        console.error("Cannot navigate to edit: Patient object or identifier is missing", pasien);
+         errorMessage.value = "Tidak dapat mengedit: ID pasien hilang.";
+         showErrorPopup.value = true;
+     }
 }
 
-const pasienList = ref([
-    {
-        nama: "Mydei",
-        tanggal_pemeriksaan: "13/05/2022",
-        no_rekam_medis: "RM-20250329001",
-        no_pasien: "PSN-240102625",
-        jenis_kelamin: "Laki-Laki",
-        umur: "28",
-        tempat_tanggal_lahir: "1 April 1990",
-        alamat: "Jalan Meow No. 13",
-    },
-    {
-        nama: "Phainon",
-        tanggal_pemeriksaan: "22/05/2022",
-        no_rekam_medis: "RM-20250329002",
-        no_pasien: "PSN-240102626",
-        jenis_kelamin: "Laki-Laki",
-        umur: "28",
-        tempat_tanggal_lahir: "1 Mei 1990",
-        alamat: "Jalan Yippee No. 13",
-    },
-]);
 </script>
 
 <style>
@@ -463,5 +642,15 @@ nav {
 ::-webkit-scrollbar-thumb {
     background-color: #8ad3e5;
     border-radius: 4px;
+}
+
+table,
+th,
+td {
+    border: 1px solid #e0e0e0;
+}
+
+th {
+    background-color: #f0f0f0;
 }
 </style>

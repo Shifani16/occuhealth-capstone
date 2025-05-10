@@ -16,7 +16,7 @@ class McuResultController extends Controller
     // Get MCU results for a specific MCU patient
     public function indexByPatient($id)
     {
-        return McuResult::where('mcu_patient_id', $id)->get();
+        return McuResult::where('patient_id', $id)->get();
     }
 
     // Get one MCU result
@@ -33,7 +33,7 @@ class McuResultController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'mcu_patient_id' => 'required|exists:mcu_patients,id',
+            'patient_id' => 'required|exists:mcu_patients,id',
             'parameter' => 'required|string',
             'value' => 'required|string',
             'reference' => 'nullable|string',

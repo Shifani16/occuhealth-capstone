@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('mcu_results', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('mcu_patient_id')->constrained()->onDelete('cascade'); // Relasi ke pasien
+            $table->foreignId('patient_id')->constrained()->onDelete('cascade'); // Relasi ke pasien
             $table->string('category');   // Kategori pemeriksaan, e.g. Umur, Kolesterol
             $table->string('result');     // Hasil analisa
             $table->date('result_date');  // Tanggal analisa

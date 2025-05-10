@@ -26,11 +26,11 @@ const routes = [
   { path: '/contactus', name:'ContactUs', component: ContactUs},
   { path: '/ourservice', name:'OurService', component: OurService},
   { path: '/pasien', name:'Pasien', component: Pasien},
-  { path: '/pasiendetail', name:'PasienDetail', component: PasienDetail},
-  { path: '/pasienedit', name:'PasienEdit', component: PasienEdit},
+  { path: '/pasien/:id', name:'PasienDetail', component: PasienDetail},
+  { path: '/pasien/edit/:id', name:'PasienEdit', component: PasienEdit},
   { path: '/hasilmcu', name:'HasilMCU', component: HasilMCU},
-  { path: '/hasilmcudetail', name:'HasilMCUDetail', component: HasilMCUDetail},
-  { path: '/hasilmcuedit', name:'HasilMCUEdit', component: HasilMCUEdit},
+  { path: '/hasilmcu/:id', name:'HasilMCUDetail', component: HasilMCUDetail},
+  { path: '/hasilmcu/edit/:id', name:'HasilMCUEdit', component: HasilMCUEdit},
   { path: '/verify-reset/:user(.*)', redirect: '/' }
 ]
 
