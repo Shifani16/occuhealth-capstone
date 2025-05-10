@@ -151,7 +151,7 @@
 
                             <button
                                 @click="save"
-                                class="border border-[#3393AD] text-[#3393AD] font-semibold px-6 py-2 rounded flex items-center gap-2 transition hover:bg-[#E4EBF1] border-[#E4EBF1]"
+                                class="border border-[#3393AD] text-[#3393AD] font-semibold px-6 py-2 rounded flex items-center gap-2 transition hover:bg-[#E4EBF1]"
                             >
                                 <img src="@/assets/simpan.svg" class="h-5" />
                                 Simpan
