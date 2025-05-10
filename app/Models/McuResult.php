@@ -13,9 +13,13 @@ class McuResult extends Model
         'result_date'
     ];
 
-    public function patient()
+    protected $casts = [
+        'result_date' => 'date',
+    ];
+
+    public function mcuPatient()
     {
-        return $this->belongsTo(McuPatient::class, 'mcu_patient_id');
+        return $this->belongsTo(McuPatient::class);
     }
 
     

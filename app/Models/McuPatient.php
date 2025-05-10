@@ -14,6 +14,11 @@ class McuPatient extends Model
         'status'
     ];
 
+    protected $casts = [
+        'examination_date' => 'date',
+    ];
+
+
     public function mcuResult()
     {
         return $this->hasMany(McuResult::class);

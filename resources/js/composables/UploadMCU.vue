@@ -1,113 +1,211 @@
 <template>
-    <div 
-      
-      class="container-open-sans fixed inset-0 bg-[rgba(0,0,0,0.3)] flex items-center justify-center z-50">
+    <div
+        class="container-open-sans fixed inset-0 bg-[rgba(0,0,0,0.3)] flex items-center justify-center z-50"
+    >
         <div class="bg-[#27394B] w-[600px] p-6 rounded-2xl shadow-md relative">
             <img
-              src="@/assets/circle-x.svg"
-              class="absolute top-5 right-5 cursor-pointer w-6 h-6"
-              @click="closeModal"
+                src="@/assets/circle-x.svg"
+                class="absolute top-5 right-5 cursor-pointer w-6 h-6"
+                @click="closeModal"
+                title="Tutup"
             />
+
+            <h2 class="text-white text-2xl font-bold mb-4 text-center">
+                Upload Hasil MCU Excel
+            </h2>
 
             <div class="h-[1px] bg-white w-full mt-8 mb-6"></div>
 
-            <label 
-              for="file-upload"
-              class="border border-white rounded-lg px-5 py-3 flex items-center gap-3 justify-center cursor-pointer hover:bg-[#C9D6E3] group transition"
-              @mouseover="hoveringFileButton = true"
-              @mouseleave="hoveringFileButton = false"
+            <label
+                for="file-upload"
+                class="border border-white rounded-lg px-5 py-3 flex items-center gap-3 justify-center cursor-pointer hover:bg-[#C9D6E3] group transition"
+                @mouseover="hoveringFileButton = true"
+                @mouseleave="hoveringFileButton = false"
             >
-              <img
-                :src="hoveringFileButton ? uploadMcuHover : uploadMcu"
-                class="w-5 h-5"
-              />
-              <span
-                :class="hoveringFileButton ? 'text-[#426180]' : 'text-white'"
-                class="font-semibold"
-              >
-                Pilih File dari komputer
-              </span>
-              <input
-                id="file-upload"
-                type="file"
-                accept=".xlsx"
-                class="hidden"
-                @change="handleFileUpload"
-              />
+                <img
+                    :src="hoveringFileButton ? uploadMcuHover : uploadMcu"
+                    class="w-5 h-5"
+                />
+                <span
+                    :class="
+                        hoveringFileButton ? 'text-[#426180]' : 'text-white'
+                    "
+                    class="font-semibold"
+                >
+                    Pilih File dari komputer (.xlsx)
+                </span>
+                <input
+                    id="file-upload"
+                    type="file"
+                    accept=".xlsx"
+                    class="hidden"
+                    @change="handleFileUpload"
+                    ref="fileInput"
+                />
             </label>
 
             <div
-              v-if="selectedFile"
-              class="bg-[#C9D6E3] text-[#27394B] px-4 py-2 rounded mt-4 flex justify-between items-center"
+                v-if="selectedFile"
+                class="bg-[#C9D6E3] text-[#27394B] px-4 py-2 rounded mt-4 flex justify-between items-center truncate"
             >
-              <span class="truncate max-w-[80%]">{{ selectedFile.name }}</span>
-              <img
-                src="@/assets/cross.svg"
-                class="w-4 h-4 cursor-pointer"
-                @click="selectedFile = null"
-              />
+                <span class="truncate max-w-[80%] font-medium">{{
+                    selectedFile.name
+                }}</span>
+                <img
+                    src="@/assets/cross.svg"
+                    class="w-4 h-4 cursor-pointer"
+                    @click="clearSelectedFile"
+                    title="Hapus file"
+                />
+            </div>
+
+            <div v-if="uploading" class="text-white text-center mt-4">
+                Mengunggah... Harap tunggu.
+            </div>
+
+            <div
+                v-if="uploadErrorMessage"
+                class="text-red-400 text-center mt-4 text-sm"
+            >
+                {{ uploadErrorMessage }}
             </div>
 
             <div class="flex justify-end mt-6">
-              <button
-                @click="submitUpload"
-                class="border border-white text-white px-4 py-2 rounded hover:bg-white hover:text-[#27394B] font-semibold"
-              >
-                Upload
-              </button>
+                <button
+                    @click="submitUpload"
+                    :disabled="!selectedFile || uploading"
+                    class="border border-white text-white px-4 py-2 rounded hover:bg-white hover:text-[#27394B] font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    Upload
+                </button>
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { defineEmits, defineProps, ref, watch } from 'vue';
-import uploadMcu from '@/assets/upload-mcu.svg';
-import uploadMcuHover from '@/assets/upload-mcu-hover.svg';
+import { defineEmits, defineProps, ref, watch } from "vue";
+import axios from "axios";
+import uploadMcu from "@/assets/upload-mcu.svg";
+import uploadMcuHover from "@/assets/upload-mcu-hover.svg";
 
-const props = defineProps({ show: Boolean });
-const emit = defineEmits(['close', 'uploadSuccess', 'uploadError']);
+const props = defineProps({
+    show: Boolean,
+});
+const emit = defineEmits(["close", "uploadSuccess", "uploadError"]);
 
+const fileInput = ref(null);
 const selectedFile = ref(null);
 const hoveringFileButton = ref(false);
+const uploading = ref(false);
+const uploadErrorMessage = ref("");
 
 function handleFileUpload(event) {
-  const file = event.target.files[0];
-  if (file && file.name.endsWith('.xlsx')) {
-    selectedFile.value = file;
-    event.target.value = '';
-  } else {
-    selectedFile.value = null
-    emit('uploadError');
-  }
+    const file = event.target.files ? event.target.files[0] : null;
+    if (file) {
+        uploadErrorMessage.value = "";
+
+        if (file.name.endsWith(".xlsx")) {
+            selectedFile.value = file;
+        } else {
+            selectedFile.value = null;
+            uploadErrorMessage.value =
+                "Format file tidak valid. Harap pilih file .xlsx";
+            if (fileInput.value) {
+                fileInput.value.value = "";
+            }
+        }
+    } else {
+        selectedFile.value = null;
+        uploadErrorMessage.value = "";
+    }
+}
+
+function clearSelectedFile() {
+    selectedFile.value = null;
+    uploadErrorMessage.value = "";
+    if (fileInput.value) {
+        fileInput.value.value = "";
+    }
 }
 
 function closeModal() {
-  emit('close');
+    selectedFile.value = null;
+    uploading.value = false;
+    uploadErrorMessage.value = "";
+    if (fileInput.value) {
+        fileInput.value.value = "";
+    }
+    emit("close");
 }
 
-function submitUpload() {
-  if (!selectedFile.value) {
-    alert('Harap pilih file terlebih dahulu.');
-    return;
-  }
+async function submitUpload() {
+    if (!selectedFile.value) {
+        uploadErrorMessage.value = "Harap pilih file terlebih dahulu.";
+        return;
+    }
 
-  const isValid = selectedFile.value.name.endsWith('.xlsx');
+    if (!selectedFile.value.name.endsWith(".xlsx")) {
+        uploadErrorMessage.value =
+            "Format file tidak valid. Harap pilih file .xlsx";
+        return;
+    }
 
-  if (isValid) {
-    emit('uploadSuccess', selectedFile.value); 
-  } else {
-    emit('uploadError');
-  }
+    uploading.value = true;
+    uploadErrorMessage.value = "";
 
-  closeModal();
+    const formData = new FormData();
+    formData.append("file", selectedFile.value);
+
+    try {
+        const response = await axios.post("/api/import/mcu", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
+
+        console.log("Upload successful:", response.data);
+        emit("uploadSuccess", response.data);
+    } catch (error) {
+        console.error("Upload failed:", error);
+
+        console.error("Backend validation errors:", error.response?.data);
+
+        let message = "Terjadi kesalahan saat mengunggah file.";
+        if (error.response && error.response.data) {
+            if (error.response.data.message) {
+                message = error.response.data.message;
+            } else if (error.response.data.error) {
+                message = error.response.data.error;
+            } else if (error.response.data.messages) {
+                message = Object.values(error.response.data.messages)
+                    .flat()
+                    .join(", ");
+              
+                if (error.response.data.messages.length > 0) {
+                    message = error.response.data.messages[0];
+                }
+            }
+        } else if (error.message) {
+            message = `Upload gagal: ${error.message}`;
+        }
+
+        uploadErrorMessage.value = message;
+        emit("uploadError", error);
+    } finally {
+        uploading.value = false;
+        selectedFile.value = null;
+        if (fileInput.value) {
+            fileInput.value.value = "";
+        }
+    }
 }
-
 </script>
 
 <style scoped>
-input[type='file']::-webkit-file-upload-button {
-  display: none;
+/* Keep your styles */
+input[type="file"]::-webkit-file-upload-button {
+    display: none;
 }
 
 .container-nunito {
@@ -117,5 +215,4 @@ input[type='file']::-webkit-file-upload-button {
 .container-open-sans {
     font-family: "Open Sans", sans-serif;
 }
-
 </style>

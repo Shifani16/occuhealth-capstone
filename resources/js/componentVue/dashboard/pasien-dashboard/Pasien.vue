@@ -14,7 +14,6 @@
         </header>
 
         <div class="mt-20 flex min-h-screen">
-            <!-- Left Bar -->
             <LeftBar active="Pasien" />
 
             <main class="flex-1 p-6">

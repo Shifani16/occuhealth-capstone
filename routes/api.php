@@ -7,10 +7,13 @@ use App\Http\Controllers\dashboard\PatientController;
 use App\Http\Controllers\dashboard\McuPatientController;
 use App\Http\Controllers\dashboard\McuResultController;
 use App\Http\Controllers\ForgotPasswordController;
+use App\Http\Controllers\Api\ImportController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
+
+
 
 Route::get('/users', [AuthController::class, 'getUsers']);
 
@@ -28,7 +31,10 @@ Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
+
 });
+
+Route::post('/import/mcu', [ImportController::class, 'importMcu']);
 
 Route::prefix('patients')->group(function () {
     Route::get('/', [PatientController::class, 'getPatients']);
@@ -54,3 +60,4 @@ Route::prefix('mcu-results')->group(function () {
     Route::put('/{id}', [McuResultController::class, 'update']);
     Route::delete('/{id}', [McuResultController::class, 'destroy']);
 });
+

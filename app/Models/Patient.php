@@ -20,4 +20,15 @@ class Patient extends Model
         'birth_place',
         'address',
     ];
+
+    protected $casts = [
+        'age' => 'integer',
+        'examination_date' => 'date',
+        'birth_date' => 'date',
+    ];
+
+    public function mcuPatients()
+    {
+        return $this->hasMany(McuPatient::class);
+    }
 }
