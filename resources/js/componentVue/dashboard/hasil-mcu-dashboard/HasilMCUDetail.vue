@@ -20,7 +20,6 @@
                     Hasil Medical Check Up
                 </h1>
 
-                <!-- Conditional rendering for loading, error, and data -->
                 <div v-if="loading" class="ml-7 mt-8 text-center text-[#3393AD]">
                      Memuat data hasil MCU...
                 </div>
@@ -28,12 +27,10 @@
                  <div v-else-if="fetchError" class="ml-7 mt-8 text-center text-red-600">
                      Error: {{ fetchError }}
                      <br>
-                     <!-- Add a retry button -->
                      <button @click="fetchMcuDetails(route.params.id)" class="mt-2 text-[#3393AD] underline">Coba Lagi</button>
                  </div>
-
-                <template v-else-if="pasien && hasilMCU.length > 0">
-                     <div class="ml-7 flex justify-between items-center max-w-7xl">
+                 <template v-else>
+                     <div v-if="pasien" class="ml-7 flex justify-between items-center max-w-7xl">
                          <h2 class="container-nunito text-[32px] font-bold mb-1">{{ pasien.name || 'N/A' }}</h2>
                          <div
                          class="container-open-sans bg-[#185C6D] text-white text-sm rounded-full px-4 py-1 text-[16px] font-bold whitespace-nowrap"
@@ -41,10 +38,15 @@
                              {{ pasien.med_record_id || pasien.patient_id || 'N/A' }}
                          </div>
                      </div>
+                     <div v-else class="ml-7 mt-8 text-gray-600">
+                         Detail pasien tidak tersedia.
+                     </div>
 
-                     <hr class="ml-7 mt-3 mb-3 border-t-3 border-[#185C6D]" />
+                     <hr v-if="pasien || hasilMCU.length > 0 || saran" class="ml-7 mt-3 mb-3 border-t-3 border-[#185C6D]" />
 
-                     <div class="ml-7 mr-7 mt-10">
+
+                     <!-- MCU Results Table Section -->
+                     <div v-if="hasilMCU.length > 0" class="ml-7 mr-7 mt-10">
                          <table class="lg:w-[60%] text-left border-collapse container-open-sans text-[16px]">
                              <thead>
                                  <tr class="bg-[#E6F6F9] text-[#185C6D] font-bold">
@@ -57,24 +59,32 @@
                              <tbody>
                                  <tr
                                      v-for="(hasil, index) in hasilMCU"
-                                     :key="hasil.id || index" 
+                                     :key="hasil.id || index"
                                      class="even:bg-[#E6F6F9] odd:bg-white"
                                  >
-                                     
                                      <td class="py-2 px-4 border border-[#C2D6DB]">{{ hasil.category || 'N/A' }}</td>
                                      <td class="py-2 px-4 border border-[#C2D6DB]">{{ hasil.result || 'N/A' }}</td>
                                      <td class="py-2 px-4 border border-[#C2D6DB]">{{ formatBackendDate(hasil.result_date) }}</td> <!-- Format date for display -->
                                  </tr>
                              </tbody>
                          </table>
-
-                         <div v-if="saran" class="mt-10 ml-7">
-                             <h3 class="block text-black text-lg font-semibold mb-2 container-open-sans">Saran</h3>
-                             <p class="bg-[#E6F6F9] text-black rounded p-3">{{ saran }}</p>
-                         </div>
-
+                     </div>
+                     <div v-else class="ml-7 mt-8 text-gray-600">
+                         Hasil pemeriksaan individu tidak tersedia.
                      </div>
 
+
+                     <!-- Saran Section -->
+                     <div v-if="saran" class="mt-10 ml-7">
+                         <h3 class="block text-black text-lg font-semibold mb-2 container-open-sans">Saran</h3>
+                         <p class="bg-[#E6F9F9] text-black rounded p-3">{{ saran }}</p>
+                     </div>
+                     <div v-else class="mt-10 ml-7 text-gray-600">
+                         Saran tidak tersedia.
+                     </div>
+
+
+                     <!-- Edit Button -->
                      <div class="flex justify-end gap-4 mt-14 text-[18px] container-open-sans">
                          <button
                              @click="goToEdit(route.params.id)"
@@ -89,12 +99,13 @@
                              Edit
                          </button>
                      </div>
-                </template>
 
-                <div v-else class="ml-7 mt-8 text-center text-gray-600">
-                    Data hasil MCU tidak tersedia atau tidak lengkap.
-                </div>
+                   
+                     <div v-if="!pasien && hasilMCU.length === 0 && !saran" class="ml-7 mt-8 text-center text-gray-600">
+                         Data hasil MCU tidak tersedia atau tidak lengkap.
+                     </div>
 
+                 </template>
 
             </main>
         </div>
@@ -103,8 +114,8 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router'; 
-import axios from 'axios'; 
+import { useRoute, useRouter } from 'vue-router';
+import axios from 'axios';
 
 import LeftBar from '../../../composables/LeftBar.vue';
 
@@ -116,16 +127,16 @@ const hasilMCU = ref([]);
 const saran = ref('');
 
 const loading = ref(true);
-const fetchError = ref(null); 
+const fetchError = ref(null);
 
 const hoveringEdit = ref(false);
 
 async function fetchMcuDetails(id) {
     loading.value = true;
-    fetchError.value = null; 
+    fetchError.value = null;
     pasien.value = null;
-    hasilMCU.value = [];
-    saran.value = '';
+    hasilMCU.value = []; 
+    saran.value = ''; 
 
 
     try {
@@ -140,7 +151,7 @@ async function fetchMcuDetails(id) {
 
              if (Array.isArray(response.data.individual_results)) {
                 hasilMCU.value = response.data.individual_results.map(res => ({
-                     ...res, 
+                     ...res,
                  }));
             } else {
                  console.warn("Individual MCU results array not found or is not an array in response:", response.data);
@@ -148,38 +159,40 @@ async function fetchMcuDetails(id) {
             }
 
         } else {
-            fetchError.value = 'Data hasil MCU tidak ditemukan di server.';
+             fetchError.value = 'Data hasil MCU tidak ditemukan di server.'; 
+          
         }
 
 
     } catch (error) {
         console.error('Error fetching MCU details:', error);
-        fetchError.value = 'Gagal memuat detail hasil MCU.';
+        let errorMessage = 'Gagal memuat detail hasil MCU.';
 
         if (error.response) {
              if (error.response.status === 404) {
-                 fetchError.value = 'Hasil MCU dengan ID ini tidak ditemukan.';
+                 errorMessage = 'Hasil MCU dengan ID ini tidak ditemukan.';
              } else if (error.response.data && error.response.data.error) {
-                  fetchError.value = error.response.data.error;
+                  errorMessage = error.response.data.error;
              } else if (error.response.data && error.response.data.message) {
-                  fetchError.value = error.response.data.message;
+                  errorMessage = error.response.data.message;
              } else if (typeof error.response.data === 'string') {
-                  fetchError.value = error.response.data;
+                  errorMessage = error.response.data;
              } else {
-                fetchError.value = `Gagal memuat data: ${error.response.status} ${error.response.statusText}`;
+                errorMessage = `Gagal memuat data: ${error.response.status} ${error.response.statusText}`;
              }
          } else if (error.request) {
-             fetchError.value = 'Tidak ada respons dari server saat memuat data.';
+             errorMessage = 'Tidak ada respons dari server saat memuat data.';
          } else {
-             fetchError.value = `Terjadi kesalahan saat mengambil data: ${error.message}`;
+             errorMessage = `Terjadi kesalahan saat mengambil data: ${error.message}`;
          }
+        fetchError.value = errorMessage;
 
         pasien.value = null;
         hasilMCU.value = [];
         saran.value = '';
 
     } finally {
-        loading.value = false; 
+        loading.value = false;
     }
 }
 
@@ -192,7 +205,6 @@ function formatBackendDate(dateString) {
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const year = date.getFullYear();
         return `${day}/${month}/${year}`;
-
     }
 
     console.warn("Could not parse date string for formatting:", dateString);
@@ -200,26 +212,26 @@ function formatBackendDate(dateString) {
 }
 
 onMounted(() => {
-    const mcuSessionId = route.params.id; 
+    const mcuSessionId = route.params.id;
     if (mcuSessionId) {
         fetchMcuDetails(mcuSessionId);
     } else {
         fetchError.value = "ID Hasil MCU tidak ditemukan di URL.";
-        loading.value = false;
+        loading.value = false; 
     }
 });
 
-function goToEdit(id) { 
+function goToEdit(id) {
     console.log("Navigating to edit for MCU Session ID:", id);
      if (id) {
         router.push({
             name: "HasilMCUEdit",
-            params: { id: id }, 
+            params: { id: id },
         });
      } else {
          console.error("Cannot navigate to edit: MCU Session ID is missing.");
-         fetchError.value = "Tidak dapat mengedit: ID sesi MCU hilang."; 
-     }
+        
+    }
 }
 
 
@@ -234,7 +246,7 @@ function goToEdit(id) {
 }
 
 table, th, td {
-    border: 1px solid #e0e0e0; 
+    border: 1px solid #e0e0e0;
 }
 thead th {
     background-color: #f0f0f0;

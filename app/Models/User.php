@@ -22,6 +22,9 @@ class User extends Authenticatable
         'name',
         'nip',
         'password',
+        'role',
+        'email', 
+        'nip_verified_at',
     ];
 
     /**

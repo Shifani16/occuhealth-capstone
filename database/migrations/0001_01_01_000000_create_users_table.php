@@ -18,6 +18,7 @@ return new class extends Migration
             $table->timestamp('nip_verified_at')->nullable();
             $table->string('email')->unique();
             $table->string('password');
+            $table->string('role')->default('nakes');
             $table->rememberToken();
             $table->timestamps();
         });

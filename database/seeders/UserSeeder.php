@@ -18,13 +18,24 @@ class UserSeeder extends Seeder
     {
         $faker = Faker::create();
 
+        User::create([
+            'name' => 'Admin User', 
+            'nip' => '1111111111', 
+            'nip_verified_at' => now(),
+            'email' => 'admin@example.com', 
+            'password' => Hash::make('password'),
+            'role' => 'admin',
+        ]);
+
+      
         foreach (range(1, 10) as $i) {
             User::create([
                 'name' => $faker->name,
                 'nip' => $faker->unique()->numerify('##########'),
                 'nip_verified_at' => now(),
                 'email' => $faker->unique()->safeEmail,
-                'password' => Hash::make('12345'),
+                'password' => Hash::make('12345'), 
+                // 'role' => 'nakes',
             ]);
         }
     }
