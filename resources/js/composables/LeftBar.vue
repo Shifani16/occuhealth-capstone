@@ -50,11 +50,14 @@
                 text="Rekapitulasi"
                 :collapsed="collapsed"
                 :active="active === 'Rekapitulasi'"
+                @navigate="handleNavigation"
             />
             <SidebarItem
                 icon="dashboard-report.svg"
-                text="Report"
+                text="Laporan"
                 :collapsed="collapsed"
+                :active="active === 'Laporan'"
+                @navigate="handleNavigation"
             />
             <SidebarItem
                 icon="dashboard-layanan.svg"
@@ -177,8 +180,8 @@ function handleNavigation(item) {
         case "Rekapitulasi":
             router.push("/rekapitulasi");
             break;
-        case "Report":
-            router.push("/report");
+        case "Laporan":
+            router.push("/laporan");
             break;
         case "Kontak":
             router.push("/contactus");

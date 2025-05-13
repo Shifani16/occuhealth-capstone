@@ -1,11 +1,11 @@
 <template>
   <div
   @click="handleClick"
-  class="flex items-center gap-2 rounded cursor-pointer hover:bg-gray-100"
+  class="flex items-center gap-2 rounded cursor-pointer hover:bg-[#C9EBF3] hover:text-[#27394B]"
   :class="{ 'bg-[#C1D6E6] container-open-sans font-bold text-[#305879]': active }"
   >
   <img :src="active ? icons[`${icon.replace('.svg', '')}-clicked.svg`] : icons[icon]" 
-      class="max-w-12 h-12" 
+      class="max-w-12" 
   />
   <span v-if="!collapsed">{{ text }}</span>
   </div>
@@ -24,6 +24,7 @@ import dashboardPasienClicked from '@/assets/dashboard-pasien-clicked.svg'
 import dashboardRekapitulasi from '@/assets/dashboard-rekapitulasi.svg'
 import dashboardRekapitulasiClicked from '@/assets/dashboard-rekapitulasi-clicked.svg'
 import dashboardReport from '@/assets/dashboard-report.svg'
+import dashboardReportClicked from '@/assets/dashboard-report-clicked.svg'
 import dashboardTentangKami from '@/assets/dashboard-tentang-kami.svg'
 
 const icons = {
@@ -37,7 +38,9 @@ const icons = {
   'dashboard-rekapitulasi.svg' : dashboardRekapitulasi,
   'dashboard-rekapitulasi-clicked.svg' : dashboardRekapitulasiClicked,
   'dashboard-report.svg' : dashboardReport,
+  'dashboard-report-clicked.svg' : dashboardReportClicked,
   'dashboard-tentang-kami.svg' : dashboardTentangKami
+  
 }
 
 const props = defineProps({

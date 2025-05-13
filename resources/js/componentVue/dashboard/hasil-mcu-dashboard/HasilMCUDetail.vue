@@ -249,6 +249,6 @@ table, th, td {
     border: 1px solid #e0e0e0;
 }
 thead th {
-    background-color: #f0f0f0;
+    background-color: #E6F6F9;
 }
 </style>

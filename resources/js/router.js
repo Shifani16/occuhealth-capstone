@@ -17,6 +17,8 @@ import HasilMCU from './componentVue/dashboard/hasil-mcu-dashboard/HasilMCU.vue'
 import HasilMCUDetail from './componentVue/dashboard/hasil-mcu-dashboard/HasilMCUDetail.vue'
 import HasilMCUEdit from './componentVue/dashboard/hasil-mcu-dashboard/HasilMCUEdit.vue'
 
+import Laporan from './componentVue/dashboard/laporan-dashboard/Laporan.vue'
+
 const routes = [
   { path: '/', redirect: '/login' },
   { path: '/login', name: 'Login', component: Login },
@@ -31,6 +33,7 @@ const routes = [
   { path: '/hasilmcu', name:'HasilMCU', component: HasilMCU},
   { path: '/hasilmcu/:id', name:'HasilMCUDetail', component: HasilMCUDetail},
   { path: '/hasilmcu/edit/:id', name:'HasilMCUEdit', component: HasilMCUEdit},
+  { path: '/laporan', name: 'Laporan', component: Laporan },
   { path: '/verify-reset/:user(.*)', redirect: '/' }
 ]
 
