@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ForgotPasswordController;
 
 Route::get('/', function () {
-    return redirect('/login');
+    return redirect('/aboutus');
 });
 
 // Important route with signed middleware

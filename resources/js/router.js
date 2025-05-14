@@ -20,7 +20,7 @@ import HasilMCUEdit from './componentVue/dashboard/hasil-mcu-dashboard/HasilMCUE
 import Laporan from './componentVue/dashboard/laporan-dashboard/Laporan.vue'
 
 const routes = [
-  { path: '/', redirect: '/login' },
+  { path: '/', redirect: '/aboutus' },
   { path: '/login', name: 'Login', component: Login },
   { path: '/forgotpass', name: 'ForgotPass', component: ForgotPass }, 
   { path: '/verifypass', name: 'VerifyPass', component: VerifyPass },

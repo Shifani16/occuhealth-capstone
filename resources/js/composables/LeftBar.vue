@@ -136,7 +136,7 @@ import logoutHover from "@/assets/logout-hover.svg";
 
 import { onMounted } from "vue";
 
-const user = ref({});
+const user = ref({}); // Holds the user data from localStorage
 
 const props = defineProps({
     active: String,
@@ -152,6 +152,7 @@ function toggleSidebar() {
 }
 
 onMounted(() => {
+    // Load user data from local storage when the component is mounted
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
         user.value = JSON.parse(storedUser);
@@ -160,8 +161,14 @@ onMounted(() => {
 
 function logout() {
     showLogoutPopup.value = false;
+
+    localStorage.removeItem("user");
+    user.value = {}; 
+
     router.push("/login");
 }
+
+
 
 function handleNavigation(item) {
     switch (item) {
@@ -172,12 +179,14 @@ function handleNavigation(item) {
             router.push("/aboutus");
             break;
         case "Keluar":
+            // Only show the popup, the 'Ya' button in the popup calls logout()
             showLogoutPopup.value = true;
             break;
         case "Hasil MCU":
             router.push("/hasilmcu");
             break;
         case "Rekapitulasi":
+            // Note: 'Rekapitulasi' route is not in your router.js, you might need to add it
             router.push("/rekapitulasi");
             break;
         case "Laporan":
@@ -187,8 +196,12 @@ function handleNavigation(item) {
             router.push("/contactus");
             break;
         case "Layanan Kami":
-            router.push("/ourservice");
+             router.push("/ourservice");
             break;
+        default:
+             // Optional: Handle default or unknown items
+             console.warn('Unhandled navigation item:', item);
+             break;
     }
 }
 </script>
