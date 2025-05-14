@@ -131,7 +131,6 @@ const formattedPasienData = computed(() => {
       'Jenis Kelamin': data.gender || 'N/A',
       'Umur': data.age?.toString() || 'N/A',
       'Tempat dan Tanggal Lahir': tempatTanggalLahirDisplay,
-      'Alamat': data.address || 'N/A'
     }
 })
 

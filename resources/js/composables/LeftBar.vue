@@ -136,7 +136,7 @@ import logoutHover from "@/assets/logout-hover.svg";
 
 import { onMounted } from "vue";
 
-const user = ref({}); // Holds the user data from localStorage
+const user = ref({});
 
 const props = defineProps({
     active: String,
@@ -152,7 +152,6 @@ function toggleSidebar() {
 }
 
 onMounted(() => {
-    // Load user data from local storage when the component is mounted
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
         user.value = JSON.parse(storedUser);
@@ -165,7 +164,7 @@ function logout() {
     localStorage.removeItem("user");
     user.value = {}; 
 
-    router.push("/login");
+    router.push("/aboutus");
 }
 
 
@@ -179,14 +178,12 @@ function handleNavigation(item) {
             router.push("/aboutus");
             break;
         case "Keluar":
-            // Only show the popup, the 'Ya' button in the popup calls logout()
             showLogoutPopup.value = true;
             break;
         case "Hasil MCU":
             router.push("/hasilmcu");
             break;
         case "Rekapitulasi":
-            // Note: 'Rekapitulasi' route is not in your router.js, you might need to add it
             router.push("/rekapitulasi");
             break;
         case "Laporan":
@@ -199,7 +196,6 @@ function handleNavigation(item) {
              router.push("/ourservice");
             break;
         default:
-             // Optional: Handle default or unknown items
              console.warn('Unhandled navigation item:', item);
              break;
     }

@@ -13,4 +13,13 @@ export default defineConfig(({ mode }) => ({
         vue(),
         tailwindcss(),
     ],
+    server: {
+        proxy: {
+            '/api': {
+                target: 'http://localhost:8000',
+                changeOrigin: true,
+                secure: false,
+            },
+        },
+    },
 }));

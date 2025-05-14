@@ -13,18 +13,18 @@ return new class extends Migration
     {
         Schema::create('patients', function (Blueprint $table) {
             $table->id();
-            $table->string('med_record_id'); // Nomor Rekam Medis
-            $table->string('patient_id');        // Nomor Pasien
-            $table->string('name');                  // Nama Pasien
-            $table->date('examination_date');        // Tanggal Pemeriksaan
-            $table->string('examination_type');      // Jenis Pemeriksaan
-            $table->string('unit')->nullable();      // Unit Kerja
-            $table->enum('status', ['Delivered', 'Process', 'Cancelled']); // Status Pemeriksaan
+            $table->string('med_record_id'); 
+            $table->string('patient_id');   
+            $table->string('name');              
+            // $table->date('examination_date');  
+            // $table->string('examination_type'); 
+            $table->string('unit')->nullable();    
+            // $table->enum('status', ['Delivered', 'Process', 'Cancelled']);
             $table->enum('gender', ['Laki-laki', 'Perempuan']);
             $table->integer('age');
             $table->date('birth_date');
-            $table->string('birth_place');
-            $table->text('address');
+            $table->string('jabatan')->nullable();
+            $table->string('ketenagaan')->nullable();
             $table->timestamps();
         });
     }

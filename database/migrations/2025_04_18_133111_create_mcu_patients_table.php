@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('name');
             $table->date('examination_date');
             $table->string('examination_type')->default('MCU');
-            $table->enum('status', ['Delivered', 'Process', 'Canceled']);
+            $table->enum('status', ['Completed', 'Process', 'Canceled']);
             $table->timestamps();
         });
     }

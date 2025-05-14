@@ -10,25 +10,29 @@ class Patient extends Model
         'med_record_id',
         'patient_id',
         'name',
-        'examination_date',
-        'examination_type',
-        'unit',
+        // 'examination_date',
+        // 'examination_type',
+        // 'unit',
         'status',
         'gender',
         'age',
         'birth_date',
-        'birth_place',
-        'address',
+        'jabatan',
+        'ketenagaan',
     ];
 
     protected $casts = [
         'age' => 'integer',
-        'examination_date' => 'date',
         'birth_date' => 'date',
     ];
 
     public function mcuPatients()
     {
         return $this->hasMany(McuPatient::class);
+    }
+
+    public function mcuResults()
+    {
+        return $this->hasMany(McuResult::class);
     }
 }

@@ -34,7 +34,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 });
 
-Route::post('/import/mcu', [ImportController::class, 'importMcu']);
+Route::post('/import/mcu', [ImportController::class, 'import']);
 
 Route::prefix('patients')->group(function () {
     Route::get('/', [PatientController::class, 'getPatients']);

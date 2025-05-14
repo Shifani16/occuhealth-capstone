@@ -172,7 +172,6 @@
                                                 </div>
                                             </th>
                                             <th class="px-4 py-2">TTL</th>
-                                            <th class="px-4 py-2">Alamat</th>
                                             <th class="px-4 py-2">Aksi</th>
                                         </tr>
                                     </thead>
@@ -207,9 +206,6 @@
                                             </td>
                                             <td class="px-4 py-2">
                                                 {{ item.tempat_tanggal_lahir }}
-                                            </td>
-                                            <td class="px-4 py-2">
-                                                {{ item.alamat }}
                                             </td>
                                             <td class="px-4 py-2 flex">
                                                 <button
@@ -388,8 +384,7 @@ async function fetchPasienData() {
                     no_pasien: item.patient_id || 'N/A',
                     jenis_kelamin: item.gender || 'N/A', 
                     umur: item.age?.toString() || 'N/A', 
-                    tempat_tanggal_lahir: tempatTanggalLahir, 
-                    alamat: item.address || 'N/A',
+                    tempat_tanggal_lahir: tempatTanggalLahir
                 };
             });
         } else {
@@ -443,8 +438,7 @@ const searchPasienListRaw = computed(() => {
             pasien.tanggal_pemeriksaan?.toLowerCase().includes(query) ||
             pasien.jenis_kelamin?.toLowerCase().includes(query) ||
             pasien.umur?.toLowerCase().includes(query) ||
-            pasien.tempat_tanggal_lahir?.toLowerCase().includes(query) ||
-            pasien.alamat?.toLowerCase().includes(query)
+            pasien.tempat_tanggal_lahir?.toLowerCase().includes(query)
     );
 });
 
@@ -534,8 +528,7 @@ async function confirmDelete() {
                  pasien.tanggal_pemeriksaan?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
                  pasien.jenis_kelamin?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
                  pasien.umur?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-                 pasien.tempat_tanggal_lahir?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-                 pasien.alamat?.toLowerCase().includes(searchQuery.value.toLowerCase())
+                 pasien.tempat_tanggal_lahir?.toLowerCase().includes(searchQuery.value.toLowerCase())
          ).length;
 
         const newTotalPages = Math.ceil(newFilteredCount / entriesToShow.value);

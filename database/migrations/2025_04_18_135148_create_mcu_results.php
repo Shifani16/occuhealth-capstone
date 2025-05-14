@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('patient_id')->constrained()->onDelete('cascade'); // Relasi ke pasien
             $table->string('category');   // Kategori pemeriksaan, e.g. Umur, Kolesterol
-            $table->string('result');     // Hasil analisa
+            $table->text('result');     // Hasil analisa
             $table->date('result_date');  // Tanggal analisa
             $table->timestamps();
         });

@@ -202,7 +202,6 @@ const formFields = [
   { key: "gender", label: "Jenis Kelamin", type: "text" },
   { key: "age", label: "Umur", type: "number" },
   { key: "birth_info_combined", label: "Tempat dan Tanggal Lahir", type: "text" },
-  { key: "address", label: "Alamat Lengkap", type: "text" },
 ];
 
 const formData = reactive({
