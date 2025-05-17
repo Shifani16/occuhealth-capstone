@@ -152,30 +152,6 @@ const selectOption = (option) => {
   loadData(option);
 };
 
-const rawData = [];
-const patientCount = 100;
-const riwayatKesehatanKeywords = [
-  'Batu empedu', 'DM', 'dispepsia', 'thypoid', 'penyakit jantung', 'TBC',
-  'keluhan muskoloskeletal', 'asma', 'hipertensi', 'Covid-19'
-];
-
-const jenisKelaminList = ['Laki-laki', 'Perempuan'];
-
-for (let i = 1; i <= patientCount; i++) {
-    const jenisKelamin = jenisKelaminList[Math.floor(Math.random() * jenisKelaminList.length)];
-    const usia = Math.floor(Math.random() * 50) + 20;
-    const bb = Math.random() * (100 - 40) + 40;
-    const tb = Math.random() * (190 - 140) + 140;
-    const imt = bb / ((tb / 100) * (tb / 100));
-    let kategoriIMT = 'Normal';
-    if (imt < 18.5) kategoriIMT = 'Underweight';
-    else if (imt >= 18.5 && imt < 25) kategoriIMT = 'Normal';
-    else if (imt >= 25 && imt < 30) kategoriIMT = 'Overweight';
-    else if (imt >= 30 && imt < 35) kategoriIMT = 'Obesitas Grade I';
-    else kategoriIMT = 'Obesitas Grade II';
-
-    const tdSystolic = Math.floor
-}
 
 const tableHeaders = ref([]);
 const tableData = ref([]);

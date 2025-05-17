@@ -70,7 +70,7 @@
                                 <tr v-for="(report, index) in paginatedReports" :key="report.id" class="bg-[#F7F6FE]">
                                     <td class="text-center px-4 py-2">{{ index + 1 + (currentPage - 1) * entriesPerPage }}</td>
                                     <td class="px-4 py-2">{{ report.namaFile }}</td>
-                                    <td class="text-center px-4 py-2">{{ report.tanggal }}</td>
+                                    <td class="text-center px-4 py-2">{{ formatDateDisplay(report.tanggal) }}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -143,13 +143,6 @@ const reports = ref([
   { id: 3, namaFile: 'laporan_mar.xlsx', tanggal: '2025-03-12' },
 ]);
 
-const filteredReports = computed(() => {
-  if (!isFilterActive.value || !startDate.value || !endDate.value) return reports.value;
-  return reports.value.filter((r) => {
-    const date = new Date(r.tanggal);
-    return date >= new Date(startDate.value) && date <= new Date(endDate.value);
-  });
-});
 const totalPages = computed(() => Math.ceil(filteredReports.value.length / entriesPerPage));
 
 const paginatedReports = computed(() => {
@@ -170,14 +163,61 @@ function goToPage(page) {
 }
 
 function openCalendar(type) {
-    if (type === 'start') startInput.value?.click();
-    else if (type === 'end') endInput.value?.click();
+    console.log(`Attempting to open calendar for type: ${type}`);
+    if (type === 'start') {
+        startInput.value?.click(); 
+    } else if (type === 'end') {
+        endInput.value?.click();
+    }
 }
 
 function applyFilter() {
     isFilterActive.value = true;
     currentPage.value = 1;
+
+    console.log('Filter applied with Start Date (yyyy-mm-dd):', startDate.value, 'and End Date (yyyy-mm-dd):', endDate.value);
 }
+
+
+function formatDateDisplay(dateString) {
+    if (!dateString) return '';
+    try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) {
+            console.warn("Invalid date string passed to formatDateDisplay:", dateString);
+            return dateString;
+        }
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0'); 
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    } catch (error) {
+        console.error("Error formatting date:", dateString, error);
+        return dateString; 
+    }
+}
+
+const filteredReports = computed(() => {
+  if (!isFilterActive.value || !startDate.value || !endDate.value) {
+      console.log('Filter inactive or dates not selected');
+      return reports.value;
+  }
+
+  const start = new Date(startDate.value);
+  const end = new Date(endDate.value);
+
+  end.setHours(23, 59, 59, 999);
+
+
+  console.log('Filtering reports from', startDate.value, 'to', endDate.value);
+  console.log('Date objects: Start', start, 'End', end);
+
+  return reports.value.filter((r) => {
+    const reportDate = new Date(r.tanggal);
+    const isWithinRange = reportDate >= start && reportDate <= end; 
+    return isWithinRange;
+  });
+});
 
 </script>
 
@@ -185,6 +225,20 @@ function applyFilter() {
 input[type="date"]::-webkit-calendar-picker-indicator {
   opacity: 0;
   pointer-events: all;
+  position: absolute; 
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%; 
+  height: 100%; 
+  cursor: pointer;
+}
+
+input[type="date"]::-moz-calendar-picker-indicator {
+    opacity: 0;
+    pointer-events: all;
+    cursor: pointer;
 }
 
 .container-nunito {
