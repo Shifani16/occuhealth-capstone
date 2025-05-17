@@ -15,11 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('med_record_id'); 
             $table->string('patient_id');   
-            $table->string('name');              
-            // $table->date('examination_date');  
-            // $table->string('examination_type'); 
+            $table->string('name');               
             $table->string('unit')->nullable();    
-            // $table->enum('status', ['Delivered', 'Process', 'Cancelled']);
             $table->enum('gender', ['Laki-laki', 'Perempuan']);
             $table->integer('age');
             $table->date('birth_date');
