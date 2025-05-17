@@ -19,6 +19,10 @@ import HasilMCUEdit from './componentVue/dashboard/hasil-mcu-dashboard/HasilMCUE
 
 import Laporan from './componentVue/dashboard/laporan-dashboard/Laporan.vue'
 
+import Rekapitulasi from './componentVue/dashboard/rekapitulasi-dashboard/Rekapitulasi.vue'
+
+import Dashboard from './componentVue/dashboard/main-dashboard/Dashboard.vue'
+
 const routes = [
   { path: '/', redirect: '/aboutus' },
   { path: '/login', name: 'Login', component: Login },
@@ -34,6 +38,8 @@ const routes = [
   { path: '/hasilmcu/:id', name:'HasilMCUDetail', component: HasilMCUDetail},
   { path: '/hasilmcu/edit/:id', name:'HasilMCUEdit', component: HasilMCUEdit},
   { path: '/laporan', name: 'Laporan', component: Laporan },
+  { path: '/rekapitulasi', name: 'Rekapitulasi', component: Rekapitulasi },
+  { path: '/dashboard', name:'Dashboard', component: Dashboard },
   { path: '/verify-reset/:user(.*)', redirect: '/' }
 ]
 

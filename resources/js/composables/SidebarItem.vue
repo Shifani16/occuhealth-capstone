@@ -5,7 +5,7 @@
   :class="{ 'bg-[#C1D6E6] container-open-sans font-bold text-[#305879]': active }"
   >
   <img :src="active ? icons[`${icon.replace('.svg', '')}-clicked.svg`] : icons[icon]" 
-      class="max-w-12" 
+      class="max-w-7 h-12" 
   />
   <span v-if="!collapsed">{{ text }}</span>
   </div>
@@ -15,6 +15,7 @@
 import { useRouter } from 'vue-router'
 
 import dashboardIcon from '@/assets/dashboard.svg'
+import dashboardIconClicked from '@/assets/dashboard-clicked.svg'
 import dashboardHasilMCU from '@/assets/dashboard-hasil-mcu.svg'
 import dashboardHasilMCUClicked from '@/assets/dashboard-hasil-mcu-clicked.svg'
 import dashboardKontak from '@/assets/dashboard-kontak.svg'
@@ -29,6 +30,7 @@ import dashboardTentangKami from '@/assets/dashboard-tentang-kami.svg'
 
 const icons = {
   'dashboard.svg': dashboardIcon,
+  'dashboard-clicked.svg': dashboardIconClicked,
   'dashboard-hasil-mcu.svg' : dashboardHasilMCU,
   'dashboard-hasil-mcu-clicked.svg' : dashboardHasilMCUClicked,
   'dashboard-kontak.svg' : dashboardKontak,

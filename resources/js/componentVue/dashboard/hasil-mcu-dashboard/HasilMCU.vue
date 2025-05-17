@@ -184,7 +184,23 @@
                                                     {{ item.tanggal_pemeriksaan }}
                                                 </td>
                                                 <td class="px-6 py-4">
-                                                    {{ item.status }}
+                                                    <button
+                                                        @click="toggleStatus(item)"
+                                                        class="flex items-center gap-2 px-3 py-1 rounded-full font-semibold text-sm"
+                                                        :class="{
+                                                            'bg-[#EBF9F1] text-[#1F9254]': item.status === 'Delivered',
+                                                            'bg-[#FEF2E5] text-[#CD6200]': item.status === 'Process',
+                                                            'bg-[#FBE7E8] text-[#A30D11]': item.status === 'Canceled'
+                                                        }"
+                                                    >
+                                                        <img
+                                                            :src="getStatusIcon(item.status)"
+                                                            class="w-4 h-4"
+                                                            alt="Status Icons"
+                                                        />
+                                                        {{ item.status }}
+                                                    </button>
+                                                    
                                                 </td>
                                                 <td class="px-6 py-4 flex gap-2">
                                                     <button
@@ -280,6 +296,26 @@ const loading = ref(false);
 const router = useRouter();
 
 const hoveringTambah = ref(false);
+const statusOptions = ['Delivered', 'Process', 'Canceled'];
+
+function toggleStatus(item) {
+    const currentIndex = statusOptions.indexOf(item.status);
+    const nextIndex = (currentIndex + 1) % statusOptions.length;
+    item.status = statusOptions[nextIndex];
+}
+
+function getStatusIcon(status) {
+    switch (status) {
+        case 'Delivered':
+            return new URL('@/assets/arrow-down-green.svg', import.meta.url).href;
+        case 'Process':
+            return new URL('@/assets/arrow-down-orange.svg', import.meta.url).href;
+        case 'Canceled':
+            return new URL('@/assets/arrow-down-red.svg', import.meta.url).href;
+        default:
+            return '';
+    }
+}
 
 // --- Data Fetching ---
 async function fetchMcuData() {

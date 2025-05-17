@@ -2,7 +2,7 @@
     <aside
         :class="[
             'transition-all duration-300 bg-white shadow-md',
-            collapsed ? 'w-20' : 'w-64',
+            collapsed ? 'w-20' : 'min-w-60',
         ]"
     >
         <div class="flex items-center justify-between p-4">
@@ -23,7 +23,9 @@
             <SidebarItem
                 icon="dashboard.svg"
                 text="Dashboard"
+                :active="active === 'Dashboard'"
                 :collapsed="collapsed"
+                @navigate="handleNavigation"
             />
             <SidebarItem
                 icon="dashboard-tentang-kami.svg"
@@ -194,6 +196,9 @@ function handleNavigation(item) {
             break;
         case "Layanan Kami":
              router.push("/ourservice");
+            break;
+        case "Dashboard":
+             router.push("/dashboard");
             break;
         default:
              console.warn('Unhandled navigation item:', item);
