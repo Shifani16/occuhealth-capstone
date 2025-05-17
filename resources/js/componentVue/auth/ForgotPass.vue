@@ -28,7 +28,7 @@
 
                 <form @submit.prevent="submitReset">
                     <!-- Password Lama -->
-                    <div class="relative">
+                    <!-- <div class="relative">
                         <input
                             v-model="oldPassword"
                             :type="showOld ? 'text' : 'password'"
@@ -46,7 +46,7 @@
                                 class="w-6 h-6"
                             />
                         </button>
-                    </div>
+                    </div> -->
 
                     <!-- Password Baru -->
                     <div class="relative">

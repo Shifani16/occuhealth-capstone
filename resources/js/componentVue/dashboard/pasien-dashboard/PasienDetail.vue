@@ -22,7 +22,7 @@
                     <button @click="fetchPatientData(route.params.id)" class="mt-2 text-[#3393AD] underline">Coba Lagi</button>
                 </div>
 
-                <template v-else-if="pasienData"> 
+                <template v-else-if="pasienData">
                     <div class="ml-7 flex justify-between items-center max-w-7xl">
                         <h2 class="container-nunito text-[32px] font-bold mb-1">{{ pasienData.name || 'Nama Tidak Tersedia' }}</h2>
                         <div class="container-open-sans bg-[#185C6D] text-white text-sm rounded-full px-4 py-1 text-[16px] font-bold whitespace-nowrap">
@@ -43,11 +43,12 @@
                             @click="goToHasil(pasienData)"
                             @mouseover="hoveringHasil = true"
                             @mouseleave="hoveringHasil = false"
-                            class="border border-[#3393AD] text-[#3393AD] hover:bg-[#3393AD] hover:text-white font-semibold px-4 py-2 rounded flex items-center gap-2 transition"
-                            :disabled="loading || fetchError || !pasienData"
+                            class="border border-[#3393AD] text-[#3393AD] hover:bg-[#3393AD] hover:text-white font-semibold px-4 py-2 rounded flex items-center gap-2 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                            :disabled="loading || fetchError || !pasienData || !pasienData.latest_mcu_id"
+                             title="Lihat Hasil MCU Terbaru"
                         >
                             <img :src="hoveringHasil ? hasilMCUHover : hasilMCU" class="h-5" />
-                            Lihat Hasil MCU
+                            Lihat Hasil MCU Terbaru
                         </button>
 
                         <button
@@ -56,9 +57,10 @@
                             @mouseleave="hoveringEdit = false"
                              :disabled="loading || fetchError || !pasienData"
                             :class="['border border-[#3393AD] font-semibold px-4 py-2 rounded flex items-center gap-2 transition disabled:opacity-50 disabled:cursor-not-allowed', hoveringEdit ? 'bg-[#E4EBF1] border-[#E4EBF1] text-[#3393AD]' : 'text-[#3393AD]']"
+                             title="Edit Data Pasien"
                         >
                             <img src="@/assets/edit.svg" class="h-5" />
-                            Edit
+                            Edit Data Pasien
                         </button>
                     </div>
                 </template>
@@ -99,16 +101,18 @@ const fetchError = ref(null)
 const formattedPasienData = computed(() => {
     const data = pasienData.value;
     if (!data) {
-        return {}; 
+        return {};
     }
 
+   
     const examinationDate = data.examination_date
         ? new Date(data.examination_date).toLocaleDateString('id-ID', {
               year: 'numeric',
               month: '2-digit',
               day: '2-digit'
           })
-        : 'N/A';
+        : 'Belum Ada MCU'; 
+
 
      const birthDateDisplay = data.birth_date
         ? new Date(data.birth_date).toLocaleDateString('id-ID', {
@@ -125,12 +129,16 @@ const formattedPasienData = computed(() => {
 
     return {
       'Nama Pasien': data.name || 'N/A',
-      'Tanggal Pemeriksaan': examinationDate,
+      'Tanggal Pemeriksaan Terakhir': examinationDate,
       'Nomor Rekam Medis': data.med_record_id || 'N/A',
       'Nomor Pasien': data.patient_id || 'N/A',
       'Jenis Kelamin': data.gender || 'N/A',
       'Umur': data.age?.toString() || 'N/A',
       'Tempat dan Tanggal Lahir': tempatTanggalLahirDisplay,
+        'Unit': data.unit || 'N/A',
+       'Jabatan': data.jabatan || 'N/A',
+       'Ketenagaan': data.ketenagaan || 'N/A',
+
     }
 })
 
@@ -154,7 +162,7 @@ async function fetchPatientData(id) {
         if (response.data) {
              pasienData.value = response.data;
         } else {
-            fetchError.value = "Data pasien tidak ditemukan di server.";
+            fetchError.value = "Data pasien tidak ditemukan di server (respons kosong).";
             pasienData.value = null;
         }
 
@@ -179,7 +187,7 @@ async function fetchPatientData(id) {
                 fetchError.value = `Gagal memuat data: ${error.response.status} ${error.response.statusText}`;
              }
          } else if (error.request) {
-            
+
              fetchError.value = 'Tidak ada respons dari server. Periksa koneksi Anda.';
          } else {
              fetchError.value = `Terjadi kesalahan: ${error.message}`;
@@ -204,8 +212,8 @@ onMounted(() => {
 
 // --- Navigation ---
 function goToEdit(pasien) {
-     console.log("Attempting to navigate to edit for:", pasien);
-     const patientId = pasien?.id || pasien?.no_pasien; 
+     console.log("Attempting to navigate to edit for patient ID:", pasien?.id);
+     const patientId = pasien?.id;
 
      if (patientId) {
           router.push({ name: 'PasienEdit', params: { id: patientId } });
@@ -216,13 +224,14 @@ function goToEdit(pasien) {
 }
 
 function goToHasil(pasien) {
-     const patientId = pasien?.id || pasien?.no_pasien; 
+     console.log("Attempting to navigate to Hasil MCU for MCU ID:", pasien?.latest_mcu_id);
+     const mcuId = pasien?.latest_mcu_id;
 
-     if (patientId) {
-          router.push({ name: 'HasilMCUDetail', params: { id: patientId } });
+     if (mcuId) {
+          router.push({ name: 'HasilMCUDetail', params: { id: mcuId } });
      } else {
-          console.error("Cannot navigate to edit: Patient ID is missing", pasien);
-          fetchError.value = "Tidak dapat mengedit: ID pasien tidak tersedia.";
+          console.error("Cannot navigate to Hasil MCU: Latest MCU ID is missing", pasien);
+          fetchError.value = "Tidak dapat melihat hasil MCU: Data hasil MCU terbaru tidak ditemukan untuk pasien ini.";
      }
 }
 </script>

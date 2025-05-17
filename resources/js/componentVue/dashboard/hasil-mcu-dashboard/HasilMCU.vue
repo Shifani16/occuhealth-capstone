@@ -167,7 +167,7 @@
 
                                         <tbody>
                                             <tr
-                                                v-for="item, index in hasilList"
+                                                v-for="item, index in filteredAndPaginatedHasil"
                                                 :key="item.no_pasien"
                                                 class="container-open-sans odd:bg-[#E6F6F9]"
                                             >

@@ -44,7 +44,10 @@
                         <span class="ml-2 text-[14px] font-semibold"
                             >entries</span
                         >
-                        <img src="@/assets/arrow-down.svg" class="absolute right-16 top-1/2 -translate-y-1/2 h-3 pointer-events-none" />
+                        <img
+                            src="@/assets/arrow-down.svg"
+                            class="absolute right-16 top-1/2 -translate-y-1/2 h-3 pointer-events-none"
+                        />
                     </div>
 
                     <div class="relative">
@@ -112,18 +115,14 @@
                                 <table
                                     class="table-auto text-left border-collapse w-full"
                                 >
-                                    <thead class="bg-white">
+                                    <thead>
                                         <tr
-                                            class="container-open-sans font-bold"
+                                            class="container-open-sans font-bold sticky top-0 z-10"
                                         >
-                                            <th
-                                                class="px-4 py-2 sticky top-0 z-10"
-                                            >
+                                            <th class="px-4 py-2">
                                                 No.
                                             </th>
-                                            <th
-                                                class="px-4 py-2 sticky top-0 z-10"
-                                            >
+                                            <th class="px-4 py-2">
                                                 <div
                                                     class="flex items-center gap-2"
                                                 >
@@ -135,7 +134,7 @@
                                                 </div>
                                             </th>
                                             <th
-                                                class="px-4 py-2 sticky top-0 z-10 flex items-center gap-2"
+                                                class="px-4 py-2 flex items-center gap-2"
                                             >
                                                 Tanggal Pemeriksaan
                                                 <img
@@ -143,24 +142,16 @@
                                                     class="h-4 cursor-pointer"
                                                 />
                                             </th>
-                                            <th
-                                                class="px-4 py-2 sticky top-0 z-10"
-                                            >
+                                            <th class="px-4 py-2">
                                                 No. Rekam Medis
                                             </th>
-                                            <th
-                                                class="px-4 py-2 sticky top-0 z-10"
-                                            >
+                                            <th class="px-4 py-2">
                                                 No. Pasien
                                             </th>
-                                            <th
-                                                class="px-4 py-2 sticky top-0 z-10"
-                                            >
+                                            <th class="px-4 py-2">
                                                 Jenis Kelamin
                                             </th>
-                                            <th
-                                                class="px-4 py-2 sticky top-0 z-10"
-                                            >
+                                            <th class="px-4 py-2">
                                                 <div
                                                     class="flex items-center gap-2"
                                                 >
@@ -175,6 +166,7 @@
                                             <th class="px-4 py-2">Aksi</th>
                                         </tr>
                                     </thead>
+
                                     <tbody>
                                         <tr
                                             v-for="(
@@ -229,7 +221,11 @@
                                                     />
                                                 </button>
                                                 <button
-                                                    @click="selectPasienToDelete(item)"
+                                                    @click="
+                                                        selectPasienToDelete(
+                                                            item
+                                                        )
+                                                    "
                                                     class="cursor-pointer w-10 h-10 object-contain"
                                                 >
                                                     <img
@@ -325,15 +321,15 @@ import LeftBar from "../../../composables/LeftBar.vue";
 const collapsed = ref(false);
 const hovering = ref(false);
 
-const pasienList = ref([]); 
+const pasienList = ref([]);
 const loading = ref(false);
-const errorMessage = ref(""); 
-const successMessage = ref(""); 
+const errorMessage = ref("");
+const successMessage = ref("");
 
 const showDeleteConfirm = ref(false);
 const showSuccessPopup = ref(false);
 const showErrorPopup = ref(false);
-const pasienToDelete = ref(null); 
+const pasienToDelete = ref(null);
 const showPopUp = ref(false);
 
 const searchQuery = ref("");
@@ -345,75 +341,83 @@ const router = useRouter();
 // --- Data Fetching ---
 async function fetchPasienData() {
     loading.value = true;
-    errorMessage.value = ""; 
+    errorMessage.value = "";
     try {
         const response = await axios.get("/api/patients");
 
-        console.log("Full Pasien API response:", response); 
+        console.log("Full Pasien API response:", response);
         console.log("Pasien API response data:", response.data);
 
         const responseData = response.data.patients;
 
-        if (response.data && Array.isArray(responseData)) { 
-             pasienList.value = responseData.map(item => {
-              
+        if (response.data && Array.isArray(responseData)) {
+            pasienList.value = responseData.map((item) => {
                 const examinationDate = item.examination_date
-                    ? new Date(item.examination_date).toLocaleDateString('id-ID', {
-                          year: 'numeric',
-                          month: '2-digit',
-                          day: '2-digit'
-                      })
-                    : 'N/A';
+                    ? new Date(item.examination_date).toLocaleDateString(
+                          "id-ID",
+                          {
+                              year: "numeric",
+                              month: "2-digit",
+                              day: "2-digit",
+                          }
+                      )
+                    : "N/A";
 
                 const birthDate = item.birth_date
-                    ? new Date(item.birth_date).toLocaleDateString('id-ID', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric'
+                    ? new Date(item.birth_date).toLocaleDateString("id-ID", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
                       })
-                    : '';
-                const tempatTanggalLahir = item.birth_place && birthDate
-                    ? `${item.birth_place}, ${birthDate}`
-                    : item.birth_place || birthDate || 'N/A';
+                    : "";
+                const tempatTanggalLahir =
+                    item.birth_place && birthDate
+                        ? `${item.birth_place}, ${birthDate}`
+                        : item.birth_place || birthDate || "N/A";
 
                 return {
                     id: item.id,
-                    nama: item.name || 'N/A', 
-                    tanggal_pemeriksaan: examinationDate, 
-                    no_rekam_medis: item.med_record_id || 'N/A', 
-                    no_pasien: item.patient_id || 'N/A',
-                    jenis_kelamin: item.gender || 'N/A', 
-                    umur: item.age?.toString() || 'N/A', 
-                    tempat_tanggal_lahir: tempatTanggalLahir
+                    nama: item.name || "N/A",
+                    tanggal_pemeriksaan: examinationDate,
+                    no_rekam_medis: item.med_record_id || "N/A",
+                    no_pasien: item.patient_id || "N/A",
+                    jenis_kelamin: item.gender || "N/A",
+                    umur: item.age?.toString() || "N/A",
+                    tempat_tanggal_lahir: tempatTanggalLahir,
                 };
             });
         } else {
-         
-             console.error("API response format for /api/patients is not as expected:", response.data);
-             pasienList.value = [];
-             errorMessage.value = 'Format data dari server tidak sesuai.'; 
-            
-              if (response.data && (response.data.message || response.data.error)) {
-                  errorMessage.value = response.data.message || response.data.error;
-              }
-             showErrorPopup.value = true; 
-        }
+            console.error(
+                "API response format for /api/patients is not as expected:",
+                response.data
+            );
+            pasienList.value = [];
+            errorMessage.value = "Format data dari server tidak sesuai.";
 
+            if (
+                response.data &&
+                (response.data.message || response.data.error)
+            ) {
+                errorMessage.value =
+                    response.data.message || response.data.error;
+            }
+            showErrorPopup.value = true;
+        }
     } catch (error) {
         console.error("Error fetching Pasien data:", error);
-        errorMessage.value = 'Gagal mengambil data pasien.';
-         if (error.response && error.response.data) {
-             if (error.response.data.message) {
-                  errorMessage.value = error.response.data.message;
-             } else if (error.response.data.error) {
-                  errorMessage.value = error.response.data.error;
-             } else if (typeof error.response.data === 'string') {
-                  errorMessage.value = error.response.data;
-             }
-         } else if (error.message) {
-             errorMessage.value = `Gagal mengambil data: ${error.message}`;
-         }
-        showErrorPopup.value = true; 
+        errorMessage.value = "Gagal mengambil data pasien.";
+        if (error.response && error.response.data) {
+            if (error.response.data.message) {
+                errorMessage.value = error.response.data.message;
+            } else if (error.response.data.error) {
+                errorMessage.value = error.response.data.error;
+            } else if (typeof error.response.data === "string") {
+                errorMessage.value = error.response.data;
+            }
+        } else if (error.message) {
+            errorMessage.value = `Gagal mengambil data: ${error.message}`;
+        }
+        showErrorPopup.value = true;
     } finally {
         loading.value = false;
     }
@@ -423,10 +427,9 @@ onMounted(() => {
     fetchPasienData();
 });
 
-
 // --- Pagination and Filtering ---
 const searchPasienListRaw = computed(() => {
-    const query = searchQuery.value ? searchQuery.value.toLowerCase() : '';
+    const query = searchQuery.value ? searchQuery.value.toLowerCase() : "";
     if (!query) {
         return pasienList.value;
     }
@@ -451,7 +454,10 @@ watch([entriesToShow, searchQuery], () => {
 });
 
 const filteredAndPaginatedPasien = computed(() => {
-    const safeCurrentPage = Math.max(1, Math.min(currentPage.value, totalPages.value || 1));
+    const safeCurrentPage = Math.max(
+        1,
+        Math.min(currentPage.value, totalPages.value || 1)
+    );
 
     const start = (safeCurrentPage - 1) * entriesToShow.value;
     const end = start + entriesToShow.value;
@@ -472,20 +478,19 @@ function prevPage() {
 }
 
 function goToPage(page) {
-     if (page >= 1 && page <= totalPages.value) {
+    if (page >= 1 && page <= totalPages.value) {
         currentPage.value = page;
     } else if (totalPages.value === 0) {
-         currentPage.value = 1;
+        currentPage.value = 1;
     }
 }
-
 
 // --- Delete Handlers ---
 function selectPasienToDelete(pasien) {
     console.log("selectPasienToDelete triggered for:", pasien);
     pasienToDelete.value = pasien;
     showDeleteConfirm.value = true;
-    
+
     console.log("showDeleteConfirm set to:", showDeleteConfirm.value);
     showSuccessPopup.value = false;
     showErrorPopup.value = false;
@@ -498,9 +503,12 @@ function cancelDelete() {
 
 async function confirmDelete() {
     if (!pasienToDelete.value || !pasienToDelete.value.id) {
-        console.error("No patient selected for deletion or patient ID missing.");
+        console.error(
+            "No patient selected for deletion or patient ID missing."
+        );
         cancelDelete();
-        errorMessage.value = 'Terjadi kesalahan: Pasien tidak ditemukan atau ID hilang.';
+        errorMessage.value =
+            "Terjadi kesalahan: Pasien tidak ditemukan atau ID hilang.";
         showErrorPopup.value = true;
         return;
     }
@@ -510,56 +518,70 @@ async function confirmDelete() {
     errorMessage.value = "";
 
     try {
-        const response = await axios.delete(`/api/patients/${pasienToDelete.value.id}`);
+        const response = await axios.delete(
+            `/api/patients/${pasienToDelete.value.id}`
+        );
         console.log("Delete successful:", response.data);
 
-        successMessage.value = 'Data pasien berhasil dihapus';
+        successMessage.value = "Data pasien berhasil dihapus";
         showSuccessPopup.value = true;
 
-        pasienList.value = pasienList.value.filter(p => p.id !== pasienToDelete.value.id);
+        pasienList.value = pasienList.value.filter(
+            (p) => p.id !== pasienToDelete.value.id
+        );
 
         pasienToDelete.value = null;
 
         const newFilteredCount = pasienList.value.filter(
             (pasien) =>
-                 pasien.nama?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-                 pasien.no_rekam_medis?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-                 pasien.no_pasien?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-                 pasien.tanggal_pemeriksaan?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-                 pasien.jenis_kelamin?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-                 pasien.umur?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-                 pasien.tempat_tanggal_lahir?.toLowerCase().includes(searchQuery.value.toLowerCase())
-         ).length;
+                pasien.nama
+                    ?.toLowerCase()
+                    .includes(searchQuery.value.toLowerCase()) ||
+                pasien.no_rekam_medis
+                    ?.toLowerCase()
+                    .includes(searchQuery.value.toLowerCase()) ||
+                pasien.no_pasien
+                    ?.toLowerCase()
+                    .includes(searchQuery.value.toLowerCase()) ||
+                pasien.tanggal_pemeriksaan
+                    ?.toLowerCase()
+                    .includes(searchQuery.value.toLowerCase()) ||
+                pasien.jenis_kelamin
+                    ?.toLowerCase()
+                    .includes(searchQuery.value.toLowerCase()) ||
+                pasien.umur
+                    ?.toLowerCase()
+                    .includes(searchQuery.value.toLowerCase()) ||
+                pasien.tempat_tanggal_lahir
+                    ?.toLowerCase()
+                    .includes(searchQuery.value.toLowerCase())
+        ).length;
 
         const newTotalPages = Math.ceil(newFilteredCount / entriesToShow.value);
 
-         if (currentPage.value > newTotalPages && newTotalPages > 0) {
-             currentPage.value = newTotalPages;
-         } else if (newTotalPages === 0) {
-              currentPage.value = 1;
-         }
-
-
+        if (currentPage.value > newTotalPages && newTotalPages > 0) {
+            currentPage.value = newTotalPages;
+        } else if (newTotalPages === 0) {
+            currentPage.value = 1;
+        }
     } catch (error) {
         console.error("Error deleting patient:", error);
-        errorMessage.value = 'Gagal menghapus data pasien.';
+        errorMessage.value = "Gagal menghapus data pasien.";
         if (error.response && error.response.data) {
             if (error.response.data.message) {
-                 errorMessage.value = error.response.data.message;
+                errorMessage.value = error.response.data.message;
             } else if (error.response.data.error) {
-                 errorMessage.value = error.response.data.error;
-            } else if (typeof error.response.data === 'string') {
-                 errorMessage.value = error.response.data;
+                errorMessage.value = error.response.data.error;
+            } else if (typeof error.response.data === "string") {
+                errorMessage.value = error.response.data;
             }
         }
         showErrorPopup.value = true;
-
     } finally {
-         loading.value = false;
-         pasienToDelete.value = null;
+        loading.value = false;
+        pasienToDelete.value = null;
     }
 }
-
 
 // --- Navigation ---
 function goToDetail(pasien) {
@@ -568,44 +590,49 @@ function goToDetail(pasien) {
         router.push({
             name: "PasienDetail",
             params: { id: pasien.id },
-            query: { ...pasien }
+            query: { ...pasien },
         });
     } else if (pasien && pasien.no_pasien) {
-         console.warn("Backend ID missing, navigating using no_pasien:", pasien);
-         router.push({
+        console.warn("Backend ID missing, navigating using no_pasien:", pasien);
+        router.push({
             name: "PasienDetail",
             params: { id: pasien.no_pasien },
-            query: { ...pasien }
+            query: { ...pasien },
         });
     } else {
-        console.error("Cannot navigate to detail: Patient object or identifier is missing", pasien);
-         errorMessage.value = "Tidak dapat melihat detail: ID pasien hilang.";
-         showErrorPopup.value = true;
+        console.error(
+            "Cannot navigate to detail: Patient object or identifier is missing",
+            pasien
+        );
+        errorMessage.value = "Tidak dapat melihat detail: ID pasien hilang.";
+        showErrorPopup.value = true;
     }
 }
 
 function goToEdit(pasien) {
     console.log("Navigate to edit for:", pasien);
-     if (pasien && pasien.id) {
+    if (pasien && pasien.id) {
         router.push({
             name: "PasienEdit",
             params: { id: pasien.id },
-             query: { ...pasien }
-         });
-     } else if (pasien && pasien.no_pasien) {
-         console.warn("Backend ID missing, navigating using no_pasien:", pasien);
-          router.push({
+            query: { ...pasien },
+        });
+    } else if (pasien && pasien.no_pasien) {
+        console.warn("Backend ID missing, navigating using no_pasien:", pasien);
+        router.push({
             name: "PasienEdit",
             params: { id: pasien.no_pasien },
-             query: { ...pasien }
-         });
-     } else {
-        console.error("Cannot navigate to edit: Patient object or identifier is missing", pasien);
-         errorMessage.value = "Tidak dapat mengedit: ID pasien hilang.";
-         showErrorPopup.value = true;
-     }
+            query: { ...pasien },
+        });
+    } else {
+        console.error(
+            "Cannot navigate to edit: Patient object or identifier is missing",
+            pasien
+        );
+        errorMessage.value = "Tidak dapat mengedit: ID pasien hilang.";
+        showErrorPopup.value = true;
+    }
 }
-
 </script>
 
 <style>
