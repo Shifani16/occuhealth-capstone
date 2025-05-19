@@ -22,7 +22,7 @@
                     <button
                         class="w-full flex justify-between items-center px-4 py-2 rounded bg-[#E6F6F9] hover:bg-[#C9EBF3] transition"
                         @click="toggleDropdown"
-                        :class="{ 'bg-[#C9EB3]' : showDropdown }"
+                        :class="{ 'bg-[#C9EBF3]' : showDropdown }"
                     >
                         <span>{{ selectedOption || 'Pilih Jenis Rekapitulasi' }}</span>
                         <img
@@ -91,14 +91,14 @@
                         <RekapChart :dataChart="chartData" />
                     </div> -->
 
-                    <div v-if="tableData.length > 0" class="w-full lg:w-1/2 bg-[#E6F6F9] p-4 rounded shadow chart-container">
+                    <div v-if="tableData.length > 0" class="container-open-sans w-full lg:w-1/2 bg-[#E6F6F9] p-4 rounded shadow chart-container">
                         <h2 class="text-lg font-semibold mb-4">
                             Analisis {{ selectedOption }}
                         </h2>
                         <RekapChart :dataChart="chartData" />
                     </div>
 
-                    <div v-else class="w-full lg:w-1/2 bg-[#E6F6F9] p-4 rounded shadow">
+                    <div v-else class="container-open-sans w-full lg:w-1/2 bg-[#E6F6F9] p-4 rounded shadow">
                         <h2 class="text-lg font-semibold mb-4">
                             Analisis {{ selectedOption }}
                         </h2>
@@ -120,27 +120,64 @@ import RekapChart from '../../../composables/RekapChart.vue';
 import upIcon from '@/assets/pilih-up.svg';
 import downIcon from '@/assets/pilih-down.svg';
 
+import { 
+    calculateGlukosaRekap,
+    calculateStatusGiziRekap,
+    calculateTekananDarahRekap,
+    calculateUmurRekap,
+    calculateHbRekap,
+    calculateCreatininRekap,
+    calculateFungsiHatiRekap,
+    calculateKolesterolTotalRekap,
+    calculateKolesterolHdlRekap,
+    calculateKolesterolLdlRekap,
+    calculateTrigliseridaRekap,
+    calculateUreumRekap,
+    calculateAsamUratRekap
+ } from '../../../composables/recapCalculator';
+
+ // Mock Data
+ const allRawData = ref(mockRawData);
+const loadingData = ref(true);
+const fetchError = ref(null);
+
 // Dropdown
 const showDropdown = ref(false);
-const selectedOption = ref('');
+const selectedOption = ref(null);
+
 const options = [
-  'Gangguan Metabolisme Glukosa',
-  'Gangguan Status Gizi',
-  'Gangguan Tekanan Darah',
-  'Kelompok Umur Peserta MCU',
-  'Kadar Hemoglobin',
-  'Pemeriksaan Creatinin Darah',
-  'Pemeriksaan Dislipidemia',
-  'Pemeriksaan Kolestrol Total',
-  'Pemeriksaan Infeksi Salurah Kemih',
-  'Pemeriksaan Kolesterol HDL',
-  'Pemeriksaan Kolesterol LDL',
-  'Pemeriksaan Trigliserida',
-  'Pemeriksaan Ureum',
-  'Riwayat Kesehatan Peserta MCU',
-  'Gangguan Fungsi Hati',
-  'Hasil Pemeriksaan EKG'
+  { label: 'Gangguan Metabolisme Glukosa', value: 'glukosa' },
+  { label: 'Gangguan Status Gizi', value: 'statusGizi' },
+  { label: 'Gangguan Tekanan Darah', value: 'tekananDarah' },
+  { label: 'Kelompok Umur Peserta MCU', value: 'umur' },
+  { label: 'Kadar Hemoglobin', value: 'hb' },
+  { label: 'Pemeriksaan Creatinin Darah', value: 'creatinin' },
+  { label: 'Pemeriksaan Kolestrol Total', value: 'kolesterolTotal' },
+  { label: 'Pemeriksaan Kolesterol HDL', value: 'kolesterolHdl' },
+  { label: 'Pemeriksaan Kolesterol LDL', value: 'kolesterolLdl' },
+  { label: 'Pemeriksaan Trigliserida', value: 'trigliserida' },
+  { label: 'Pemeriksaan Ureum', value: 'ureum' },
+  { label: 'Pemeriksaan Asam Urat', value: 'asamUrat' },
+  { label: 'Riwayat Kesehatan Peserta MCU', value: 'riwayatKesehatan' },
+  { label: 'Suspek Gangguan Fungsi Hati', value: 'fungsiHati' },
 ];
+
+const calculationFunctions = {
+    glukosa: calculateGlukosaRekap,
+    statusGizi: calculateStatusGiziRekap,
+    tekananDarah: calculateTekananDarahRekap,
+    umur: calculateUmurRekap,
+    hb: calculateHbRekap,
+    creatinin: calculateCreatininRekap,
+    kolesterolTotal: calculateKolesterolTotalRekap,
+    kolesterolHdl: calculateKolesterolHdlRekap,
+    kolesterolLdl: calculateKolesterolLdlRekap,
+    trigliserida: calculateTrigliseridaRekap,
+    ureum: calculateUreumRekap,
+    asamUrat: calculateAsamUratRekap,
+    riwayatKesehatan: calculateRiwayatKesehatanRekap,
+    fungsiHati: calculateFungsiHatiRekap,
+};
 
 const toggleDropdown = () => {
   showDropdown.value = !showDropdown.value;
@@ -149,7 +186,13 @@ const toggleDropdown = () => {
 const selectOption = (option) => {
   selectedOption.value = option;
   showDropdown.value = false;
-  loadData(option);
+  if (allRawData.value.length > 0) {
+    loadRekapData(option.value); // Pass the value to loadRekapData
+  } else {
+      tableData.value = [];
+      tableHeaders.value = [];
+      chartData.value = { labels: [], datasets: [] };
+  }
 };
 
 
@@ -157,25 +200,81 @@ const tableHeaders = ref([]);
 const tableData = ref([]);
 const chartData = ref({});
 
-const loadData = (option) => {
-  const data = rawData[option] || [];
+const loadRekapData = (optionValue) => {
+  const calculate = calculationFunctions[optionValue];
+
+  if (!calculate) {
+    tableData.value = [];
+    tableHeaders.value = [];
+    chartData.value = { labels: [], datasets: [] };
+    console.warn(`Calculation function not found for option: ${optionValue}`);
+    return;
+  }
+
+  // Perform calculation using the fetched raw data
+  const data = calculate(allRawData.value);
   tableData.value = data;
-  tableHeaders.value = data.length ? Object.keys(data[0]) : [];
 
-  const chartLabels = data.map(row => Object.values(row).slice(0, -1).join(' - '));
-  const chartValues = data.map(row => row.Jumlah);
+  // Dynamically determine headers from the first data row (excluding 'Jumlah')
+  if (data.length > 0) {
+      // Get keys of the first row, filter out 'Jumlah'
+      tableHeaders.value = Object.keys(data[0]).filter(key => key !== 'Jumlah');
+      // Add 'Jumlah' header at the end
+      tableHeaders.value.push('Jumlah');
 
-  chartData.value = {
-    labels: chartLabels,
-    datasets: [
-      {
-        label: 'Jumlah',
-        backgroundColor: '#3DB1D5',
-        data: chartValues
-      }
-    ]
-  };
+       // Prepare chart data
+      const chartLabels = data.map(row => {
+          // Get values for label columns (all except 'Jumlah')
+          const labelValues = Object.keys(row)
+              .filter(key => key !== 'Jumlah')
+              .map(key => row[key]);
+          // Join label values for the chart label
+          return labelValues.join(' - ');
+      });
+      const chartValues = data.map(row => row.Jumlah);
+
+      chartData.value = {
+        labels: chartLabels,
+        datasets: [
+          {
+            label: 'Jumlah',
+            backgroundColor: '#3DB1D5',
+            data: chartValues
+          }
+        ]
+      };
+
+  } else {
+      // If calculation returns no data, clear table/chart
+      tableHeaders.value = [];
+      chartData.value = { labels: [], datasets: [] };
+  }
 };
+
+// Fetch raw data from backend when the component is mounted
+onMounted(async () => {
+    loadingData.value = true;
+    fetchError.value = null;
+    try {
+        // Replace with your actual backend endpoint
+        const response = await axios.get('/api/mcu-detailed-data');
+        // Assuming response.data is the array of patient objects
+        allRawData.value = response.data;
+        console.log("Fetched raw data for rekapitulasi:", allRawData.value.length, "records");
+
+        // If a default option is selected on mount (optional) or if data was loaded before selecting
+        if (selectedOption.value && allRawData.value.length > 0) {
+             loadRekapData(selectedOption.value.value);
+        }
+
+    } catch (error) {
+        console.error("Error fetching detailed MCU data:", error);
+        fetchError.value = error;
+        allRawData.value = []; // Clear data on error
+    } finally {
+        loadingData.value = false;
+    }
+});
 </script>
 
 <style scoped>
