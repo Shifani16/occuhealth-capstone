@@ -84,8 +84,8 @@
                      </div>
 
 
-                     <!-- Edit Button -->
-                     <div class="flex justify-end gap-4 mt-14 text-[18px] container-open-sans">
+                     <!-- Edit Button - Add v-if to hide for admin -->
+                     <div v-if="loggedInUser.role !== 'admin'" class="flex justify-end gap-4 mt-14 text-[18px] container-open-sans">
                          <button
                              @click="goToEdit(route.params.id)"
                              @mouseover="hoveringEdit = true"
@@ -100,8 +100,8 @@
                          </button>
                      </div>
 
-                   
-                     <div v-if="!pasien && hasilMCU.length === 0 && !saran" class="ml-7 mt-8 text-center text-gray-600">
+                     <!-- Message if no data is available -->
+                     <div v-if="!pasien && hasilMCU.length === 0 && !saran && !loading && !fetchError" class="ml-7 mt-8 text-center text-gray-600">
                          Data hasil MCU tidak tersedia atau tidak lengkap.
                      </div>
 
@@ -122,6 +122,9 @@ import LeftBar from '../../../composables/LeftBar.vue';
 const route = useRoute();
 const router = useRouter();
 
+const loggedInUser = ref({ role: null });
+
+
 const pasien = ref(null);
 const hasilMCU = ref([]);
 const saran = ref('');
@@ -132,11 +135,17 @@ const fetchError = ref(null);
 const hoveringEdit = ref(false);
 
 async function fetchMcuDetails(id) {
+    if (!id) {
+         fetchError.value = "ID Hasil MCU tidak ditemukan di URL.";
+         loading.value = false;
+         return;
+    }
+
     loading.value = true;
     fetchError.value = null;
     pasien.value = null;
-    hasilMCU.value = []; 
-    saran.value = ''; 
+    hasilMCU.value = [];
+    saran.value = '';
 
 
     try {
@@ -144,7 +153,6 @@ async function fetchMcuDetails(id) {
 
         console.log("Fetched MCU Details:", response.data);
 
-        // --- Assign fetched data to refs ---
         if (response.data) {
              pasien.value = response.data.patient || null;
              saran.value = response.data.saran || '';
@@ -152,15 +160,16 @@ async function fetchMcuDetails(id) {
              if (Array.isArray(response.data.individual_results)) {
                 hasilMCU.value = response.data.individual_results.map(res => ({
                      ...res,
+                     id: res.id || `index-${response.data.individual_results.indexOf(res)}`,
                  }));
             } else {
                  console.warn("Individual MCU results array not found or is not an array in response:", response.data);
-                 hasilMCU.value = []; 
+                 hasilMCU.value = [];
             }
 
         } else {
-             fetchError.value = 'Data hasil MCU tidak ditemukan di server.'; 
-          
+             fetchError.value = 'Data hasil MCU tidak ditemukan di server.';
+
         }
 
 
@@ -202,26 +211,45 @@ function formatBackendDate(dateString) {
 
     if (!isNaN(date.getTime())) {
         const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0'); 
         const year = date.getFullYear();
         return `${day}/${month}/${year}`;
     }
 
     console.warn("Could not parse date string for formatting:", dateString);
-    return dateString; 
+    return dateString;
 }
 
 onMounted(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+        try {
+            const user = JSON.parse(storedUser);
+            loggedInUser.value = { ...user, role: user.role || null };
+        } catch (e) {
+            console.error("Failed to parse user from localStorage in HasilMCUDetail:", e);
+            loggedInUser.value = { role: null };
+        }
+    } else {
+        loggedInUser.value = { role: null };
+    }
+
     const mcuSessionId = route.params.id;
     if (mcuSessionId) {
         fetchMcuDetails(mcuSessionId);
     } else {
         fetchError.value = "ID Hasil MCU tidak ditemukan di URL.";
-        loading.value = false; 
+        loading.value = false;
     }
 });
 
 function goToEdit(id) {
+     if (loggedInUser.value.role === 'admin') {
+        console.warn("Admin users cannot edit MCU results from detail page.");
+        return;
+     }
+
+
     console.log("Navigating to edit for MCU Session ID:", id);
      if (id) {
         router.push({

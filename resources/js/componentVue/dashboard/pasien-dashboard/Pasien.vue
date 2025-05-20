@@ -163,7 +163,7 @@
                                                 </div>
                                             </th>
                                             <th class="px-4 py-2">TTL</th>
-                                            <th class="px-4 py-2">Aksi</th>
+                                            <th class="px-4 py-2" v-if="loggedInUser.role !== 'admin'">Aksi</th>
                                         </tr>
                                     </thead>
 
@@ -201,6 +201,7 @@
                                             </td>
                                             <td class="px-4 py-2 flex">
                                                 <button
+                                                    v-if="loggedInUser.role !== 'admin'"
                                                     @click="goToDetail(item)"
                                                     class="cursor-pointer w-10 h-10"
                                                 >
@@ -210,7 +211,9 @@
                                                         class="object-contain"
                                                     />
                                                 </button>
+                                                <!-- Edit Button (Hide for Admin) -->
                                                 <button
+                                                    v-if="loggedInUser.role !== 'admin'"
                                                     @click="goToEdit(item)"
                                                     class="cursor-pointer w-10 h-10"
                                                 >
@@ -221,6 +224,7 @@
                                                     />
                                                 </button>
                                                 <button
+                                                    v-if="loggedInUser.role !== 'admin'"
                                                     @click="
                                                         selectPasienToDelete(
                                                             item
@@ -251,7 +255,7 @@
             </main>
         </div>
 
-        <!-- Pop Up -->
+        <!-- Pop Up Delete Confirmation -->
         <div
             v-if="showDeleteConfirm"
             class="fixed inset-0 bg-[rgba(0,0,0,0.3)] flex items-center justify-center z-50"
@@ -283,6 +287,7 @@
             </div>
         </div>
 
+        <!-- Pop Up Success -->
         <div
             v-if="showSuccessPopup"
             class="fixed inset-0 bg-[rgba(0,0,0,0.3)] flex items-center justify-center z-50"
@@ -307,6 +312,17 @@
                 </div>
             </div>
         </div>
+
+        <!-- Pop Up Error -->
+        <div v-if="showErrorPopup" class="fixed inset-0 bg-[rgba(0,0,0,0.3)] flex items-center justify-center z-50">
+            <div class="bg-[#27394B] p-6 rounded-2xl shadow-md w-96 text-center">
+                <img src="@/assets/cloud-x.svg" class="w-20 mx-auto mb-4"/>
+                <p class="text-white font-medium mb-4">{{ errorMessage }}</p>
+                <div class="flex justify-center">
+                    <button @click="showErrorPopup = false" class="border border-white text-white px-4 py-2 rounded hover:bg-white hover:text-[#27394B] font-semibold">Tutup</button>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -317,9 +333,11 @@ import axios from "axios";
 
 import LeftBar from "../../../composables/LeftBar.vue";
 
+const loggedInUser = ref({ role: null }); 
+
 // --- Refs and State ---
-const collapsed = ref(false);
-const hovering = ref(false);
+const collapsed = ref(false); 
+const hovering = ref(false); 
 
 const pasienList = ref([]);
 const loading = ref(false);
@@ -369,14 +387,15 @@ async function fetchPasienData() {
                           month: "long",
                           day: "numeric",
                       })
-                    : "";
+                    : ""; 
                 const tempatTanggalLahir =
-                    item.birth_place && birthDate
+                    item.birth_place && birthDate 
                         ? `${item.birth_place}, ${birthDate}`
-                        : item.birth_place || birthDate || "N/A";
+                        : item.birth_place || birthDate || "N/A"; 
+
 
                 return {
-                    id: item.id,
+                    id: item.id, 
                     nama: item.name || "N/A",
                     tanggal_pemeriksaan: examinationDate,
                     no_rekam_medis: item.med_record_id || "N/A",
@@ -386,13 +405,14 @@ async function fetchPasienData() {
                     tempat_tanggal_lahir: tempatTanggalLahir,
                 };
             });
+             console.log("Mapped pasienList:", pasienList.value);
         } else {
             console.error(
                 "API response format for /api/patients is not as expected:",
                 response.data
             );
             pasienList.value = [];
-            errorMessage.value = "Format data dari server tidak sesuai.";
+            errorMessage.value = "Format data pasien dari server tidak sesuai.";
 
             if (
                 response.data &&
@@ -401,7 +421,7 @@ async function fetchPasienData() {
                 errorMessage.value =
                     response.data.message || response.data.error;
             }
-            showErrorPopup.value = true;
+            showErrorPopup.value = true; 
         }
     } catch (error) {
         console.error("Error fetching Pasien data:", error);
@@ -413,19 +433,36 @@ async function fetchPasienData() {
                 errorMessage.value = error.response.data.error;
             } else if (typeof error.response.data === "string") {
                 errorMessage.value = error.response.data;
+            } else {
+                 errorMessage.value = JSON.stringify(error.response.data);
             }
         } else if (error.message) {
-            errorMessage.value = `Gagal mengambil data: ${error.message}`;
+             errorMessage.value = `Gagal mengambil data: ${error.message}`;
         }
-        showErrorPopup.value = true;
+        showErrorPopup.value = true; 
     } finally {
         loading.value = false;
     }
 }
 
+// --- Load User Role on Mount ---
 onMounted(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+        try {
+            const user = JSON.parse(storedUser);
+            loggedInUser.value = { ...user, role: user.role || null };
+        } catch (e) {
+            console.error("Failed to parse user from localStorage in Pasien:", e);
+            loggedInUser.value = { role: null }; 
+        }
+    } else {
+        loggedInUser.value = { role: null };
+    }
+
     fetchPasienData();
 });
+
 
 // --- Pagination and Filtering ---
 const searchPasienListRaw = computed(() => {
@@ -446,17 +483,24 @@ const searchPasienListRaw = computed(() => {
 });
 
 const totalPages = computed(() => {
-    return Math.ceil(searchPasienListRaw.value.length / entriesToShow.value);
+    return Math.max(1, Math.ceil(searchPasienListRaw.value.length / entriesToShow.value));
 });
 
 watch([entriesToShow, searchQuery], () => {
     currentPage.value = 1;
 });
 
+watch(totalPages, (newTotal) => {
+    if (currentPage.value > newTotal) {
+        currentPage.value = newTotal > 0 ? newTotal : 1;
+    }
+});
+
+
 const filteredAndPaginatedPasien = computed(() => {
     const safeCurrentPage = Math.max(
         1,
-        Math.min(currentPage.value, totalPages.value || 1)
+        Math.min(currentPage.value, totalPages.value)
     );
 
     const start = (safeCurrentPage - 1) * entriesToShow.value;
@@ -487,6 +531,11 @@ function goToPage(page) {
 
 // --- Delete Handlers ---
 function selectPasienToDelete(pasien) {
+    if (loggedInUser.value.role === 'admin') {
+        console.warn("Admin users cannot delete data.");
+        return;
+    }
+
     console.log("selectPasienToDelete triggered for:", pasien);
     pasienToDelete.value = pasien;
     showDeleteConfirm.value = true;
@@ -502,6 +551,13 @@ function cancelDelete() {
 }
 
 async function confirmDelete() {
+     if (loggedInUser.value.role === 'admin') {
+        console.warn("Admin users cannot perform delete.");
+        cancelDelete();
+        return;
+     }
+
+
     if (!pasienToDelete.value || !pasienToDelete.value.id) {
         console.error(
             "No patient selected for deletion or patient ID missing."
@@ -513,9 +569,9 @@ async function confirmDelete() {
         return;
     }
 
-    showDeleteConfirm.value = false;
+    showDeleteConfirm.value = false; 
     loading.value = true;
-    errorMessage.value = "";
+    errorMessage.value = ""; 
 
     try {
         const response = await axios.delete(
@@ -530,9 +586,9 @@ async function confirmDelete() {
             (p) => p.id !== pasienToDelete.value.id
         );
 
-        pasienToDelete.value = null;
+        pasienToDelete.value = null; 
 
-        const newFilteredCount = pasienList.value.filter(
+        const currentFilteredCount = pasienList.value.filter(
             (pasien) =>
                 pasien.nama
                     ?.toLowerCase()
@@ -557,13 +613,14 @@ async function confirmDelete() {
                     .includes(searchQuery.value.toLowerCase())
         ).length;
 
-        const newTotalPages = Math.ceil(newFilteredCount / entriesToShow.value);
+        const newTotalPages = Math.ceil(currentFilteredCount / entriesToShow.value);
 
         if (currentPage.value > newTotalPages && newTotalPages > 0) {
             currentPage.value = newTotalPages;
         } else if (newTotalPages === 0) {
             currentPage.value = 1;
         }
+
     } catch (error) {
         console.error("Error deleting patient:", error);
         errorMessage.value = "Gagal menghapus data pasien.";
@@ -574,55 +631,53 @@ async function confirmDelete() {
                 errorMessage.value = error.response.data.error;
             } else if (typeof error.response.data === "string") {
                 errorMessage.value = error.response.data;
+            } else {
+                 errorMessage.value = JSON.stringify(error.response.data);
             }
+        } else if (error.message) {
+            errorMessage.value = `Gagal menghapus data: ${error.message}`;
         }
-        showErrorPopup.value = true;
+        showErrorPopup.value = true; 
     } finally {
-        loading.value = false;
-        pasienToDelete.value = null;
+        loading.value = false; 
+        pasienToDelete.value = null; 
     }
 }
 
 // --- Navigation ---
 function goToDetail(pasien) {
     console.log("Navigate to detail for:", pasien);
-    if (pasien && pasien.id) {
+    const id = pasien.id || pasien.no_pasien; 
+
+    if (id) {
         router.push({
             name: "PasienDetail",
-            params: { id: pasien.id },
-            query: { ...pasien },
-        });
-    } else if (pasien && pasien.no_pasien) {
-        console.warn("Backend ID missing, navigating using no_pasien:", pasien);
-        router.push({
-            name: "PasienDetail",
-            params: { id: pasien.no_pasien },
+            params: { id: id },
             query: { ...pasien },
         });
     } else {
         console.error(
-            "Cannot navigate to detail: Patient object or identifier is missing",
             pasien
         );
-        errorMessage.value = "Tidak dapat melihat detail: ID pasien hilang.";
+        errorMessage.value =
         showErrorPopup.value = true;
     }
 }
 
 function goToEdit(pasien) {
+     if (loggedInUser.value.role === 'admin') {
+        console.warn("Admin users cannot edit data.");
+        return;
+     }
+
     console.log("Navigate to edit for:", pasien);
-    if (pasien && pasien.id) {
+    const id = pasien.id || pasien.no_pasien; 
+
+    if (id) {
         router.push({
             name: "PasienEdit",
-            params: { id: pasien.id },
-            query: { ...pasien },
-        });
-    } else if (pasien && pasien.no_pasien) {
-        console.warn("Backend ID missing, navigating using no_pasien:", pasien);
-        router.push({
-            name: "PasienEdit",
-            params: { id: pasien.no_pasien },
-            query: { ...pasien },
+            params: { id: id },
+            query: { ...pasien }, 
         });
     } else {
         console.error(

@@ -65,11 +65,23 @@
                 icon="dashboard-layanan.svg"
                 text="Layanan Kami"
                 :collapsed="collapsed"
+                :active="active === 'Layanan Kami'"
+                @navigate="handleNavigation"
             />
             <SidebarItem
                 icon="dashboard-kontak.svg"
                 text="Kontak"
                 :collapsed="collapsed"
+                :active="active === 'Kontak'"
+                @navigate="handleNavigation"
+            />
+            <SidebarItem
+                v-if="user.role === 'admin'"
+                icon="dashboard-pasien.svg"
+                text="Admin"
+                :collapsed="collapsed"
+                :active="active === 'Admin'"
+                @navigate="handleNavigation"
             />
         </nav>
 
@@ -138,7 +150,7 @@ import logoutHover from "@/assets/logout-hover.svg";
 
 import { onMounted } from "vue";
 
-const user = ref({});
+const user = ref({ role: null });
 
 const props = defineProps({
     active: String,
@@ -156,7 +168,17 @@ function toggleSidebar() {
 onMounted(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
-        user.value = JSON.parse(storedUser);
+        try {
+            user.value = JSON.parse(storedUser);
+            if (!user.value.hasOwnProperty('role')) {
+                 user.value.role = null;
+            }
+        } catch (e) {
+            console.error("Failed to parse user from localStorage:", e);
+            user.value = { role: null };
+        }
+    } else {
+         user.value = { role: null }; 
     }
 });
 
@@ -199,6 +221,17 @@ function handleNavigation(item) {
             break;
         case "Dashboard":
              router.push("/dashboard");
+            break;
+        case "Layanan Kami":
+            router.push('/ourservice')
+            break;
+        case "Kontak":
+            router.push('/contactus')
+            break;
+        case "Admin":
+            if (user.value.role === 'admin') {
+                router.push('/admin');
+            }
             break;
         default:
              console.warn('Unhandled navigation item:', item);

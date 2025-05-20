@@ -51,7 +51,9 @@
                             Lihat Hasil MCU Terbaru
                         </button>
 
+                         <!-- Add v-if to hide for admin -->
                         <button
+                            v-if="loggedInUser.role !== 'admin'"
                             @click="goToEdit(pasienData)"
                             @mouseover="hoveringEdit = true"
                             @mouseleave="hoveringEdit = false"
@@ -86,6 +88,7 @@ import LeftBar from '../../../composables/LeftBar.vue'
 import hasilMCU from '@/assets/lihat-hasil-mcu.svg'
 import hasilMCUHover from '@/assets/lihat-hasil-mcu-hover.svg'
 
+
 // --- State ---
 const hoveringHasil = ref(false)
 const hoveringEdit = ref(false)
@@ -97,6 +100,8 @@ const pasienData = ref(null)
 const loading = ref(true)
 const fetchError = ref(null)
 
+const loggedInUser = ref({ role: null });
+
 // --- Computed Properties ---
 const formattedPasienData = computed(() => {
     const data = pasienData.value;
@@ -104,14 +109,14 @@ const formattedPasienData = computed(() => {
         return {};
     }
 
-   
+
     const examinationDate = data.examination_date
         ? new Date(data.examination_date).toLocaleDateString('id-ID', {
               year: 'numeric',
               month: '2-digit',
               day: '2-digit'
           })
-        : 'Belum Ada MCU'; 
+        : 'Belum Ada MCU';
 
 
      const birthDateDisplay = data.birth_date
@@ -200,6 +205,19 @@ async function fetchPatientData(id) {
 }
 
 onMounted(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+        try {
+            const user = JSON.parse(storedUser);
+            loggedInUser.value = { ...user, role: user.role || null };
+        } catch (e) {
+            console.error("Failed to parse user from localStorage in PasienDetail:", e);
+            loggedInUser.value = { role: null }; 
+        }
+    } else {
+        loggedInUser.value = { role: null };
+    }
+
   const id = route.params.id;
   if (id) {
     fetchPatientData(id);
@@ -212,6 +230,11 @@ onMounted(() => {
 
 // --- Navigation ---
 function goToEdit(pasien) {
+    if (loggedInUser.value.role === 'admin') {
+        console.warn("Admin users cannot edit data from detail page.");
+        return;
+    }
+
      console.log("Attempting to navigate to edit for patient ID:", pasien?.id);
      const patientId = pasien?.id;
 

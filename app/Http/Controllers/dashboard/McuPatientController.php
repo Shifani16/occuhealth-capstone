@@ -53,6 +53,7 @@ class McuPatientController extends Controller
     {
         $request->validate([
             'patient_id' => 'required|exists:patients,id',
+            'status' => 'nullable|string',
             'examination_date' => 'required|date',
             'examination_type' => 'nullable|string',
             'status' => 'nullable|string',
@@ -86,6 +87,7 @@ class McuPatientController extends Controller
         // Validate incoming request data
         $request->validate([
             'saran' => 'nullable|string', 
+            'status' => 'nullable|string',
             'individual_results' => 'required|array',
             'individual_results.*.id' => 'required|exists:mcu_results,id', 
             'individual_results.*.result' => 'nullable|string',
@@ -123,6 +125,34 @@ class McuPatientController extends Controller
             DB::rollBack(); 
             Log::error('Error updating MCU details: ' . $e->getMessage(), ['exception' => $e, 'trace' => $e->getTraceAsString()]);
             return response()->json(['error' => 'Terjadi kesalahan saat menyimpan perubahan.', 'details' => $e->getMessage()], 500);
+        }
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|string',
+        ]);
+
+        try {
+            $mcuPatient = McuPatient::findOrFail($id);
+
+            $mcuPatient->status = $request->input('status');
+            $mcuPatient->save();
+
+            Log::info("MCU Patient ID {$id} status updated successfully to {$request->input('status')}.");
+
+            return response()->json([
+                'message' => 'Status berhasil diperbarui',
+                'data' => $mcuPatient 
+            ]);
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+             Log::warning("Status update failed: Model not found.", ['id' => $id, 'error' => $e->getMessage()]);
+             return response()->json(['error' => 'Hasil MCU tidak ditemukan.'], 404);
+        } catch (\Exception $e) {
+            Log::error('Error updating MCU status: ' . $e->getMessage(), ['exception' => $e]);
+            return response()->json(['error' => 'Terjadi kesalahan saat memperbarui status.', 'details' => $e->getMessage()], 500);
         }
     }
     

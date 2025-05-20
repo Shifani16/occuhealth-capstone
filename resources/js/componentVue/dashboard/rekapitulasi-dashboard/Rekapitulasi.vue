@@ -24,7 +24,7 @@
                         @click="toggleDropdown"
                         :class="{ 'bg-[#C9EBF3]' : showDropdown }"
                     >
-                        <span>{{ selectedOption || 'Pilih Jenis Rekapitulasi' }}</span>
+                        <span>{{ selectedOption ? selectedOption.label : 'Pilih Jenis Rekapitulasi' }}</span>
                         <img
                             :src="showDropdown ? upIcon : downIcon"
                             alt="Dropdown Icon"
@@ -38,19 +38,58 @@
                     >
                         <li
                             v-for="option in options"
-                            :key="option"
+                            :key="option.value"
                             @click="selectOption(option)"
                             class="px-4 py-2 hover:bg-[#C9EBF3] cursor-pointer"
                         >
-                            {{ option }}
+                            {{ option.label }}
                         </li>
                     </ul>
                 </div>
-                
-                <div v-if="selectedOption" class="flex gap-6 items-start flex-wrap lg:flex-nowrap">
+
+                <!-- Dropdown Filter Tahun -->
+                <div class="relative mb-6 w-40 custom-dropdown"> 
+                    <button
+                        class="w-full flex justify-between items-center px-4 py-2 rounded bg-[#E6F6F9] hover:bg-[#C9EBF3] transition"
+                        @click="toggleYearDropdown"
+                         :class="{ 'bg-[#C9EBF3]' : showYearDropdown }"
+                         :disabled="availableYears.length <= 1 && selectedYear === 'all'"
+                    >
+                        <span>{{ selectedYear === 'all' ? 'Semua Tahun' : selectedYear }}</span>
+                        <img
+                            :src="showYearDropdown ? upIcon : downIcon"
+                            alt="Dropdown Icon"
+                            class="w-4 h-4 ml-2"
+                        />
+                    </button>
+
+                    <ul
+                        v-if="showYearDropdown"
+                        class="absolute top-full mt-2 w-full bg-[#E6F6F9] rounded shadow z-10 custom-dropdown-list"
+                    >
+                        <li
+                            v-for="yearOption in availableYears"
+                            :key="yearOption"
+                            @click="selectYear(yearOption)"
+                            class="px-4 py-2 hover:bg-[#C9EBF3] cursor-pointer"
+                        >
+                            {{ yearOption === 'all' ? 'Semua Tahun' : yearOption }}
+                        </li>
+                    </ul>
+                </div>
+
+                <div v-if="loadingData" class="text-center py-8 text-gray-600">
+                    Memuat data pasien...
+                </div>
+
+                <div v-if="fetchError" class="text-center py-8 text-red-600">
+                    Gagal memuat data pasien: {{ fetchError.message }}
+                </div>
+
+                <div v-if="!loadingData && !fetchError && selectedOption" class="flex gap-6 items-start flex-wrap lg:flex-nowrap">
                     <div class="w-full lg:w-1/2 bg-[#F9FAFB] p-4 rounded shadow">
                         <h2 class="text-lg font-semibold mb-4">
-                            Rekapitulasi {{ selectedOption }}
+                            Rekapitulasi {{ selectedOption.label }}
                         </h2>
 
                         <table class="w-full text-left border-collapse">
@@ -64,12 +103,6 @@
                             </thead>
 
                             <tbody>
-                                <!-- <tr v-for="(row, index) in tableData" :key="index" class="border-b hover:bg-gray-100">
-                                    <td class="py-2 px-3">{{ index + 1 }}</td>
-                                    <td v-for="key in Object.keys(row)" :key="key" class="py-2 px-3">
-                                        {{ row[key] }}
-                                    </td>
-                                </tr> -->
                                 <tr v-if="tableData.length === 0">
                                     <td :colspan="tableHeaders.length + 1" class="py-4 px-3 text-center text-gray-500">Tidak ada data untuk rekapitulasi ini.</td>
                                 </tr>
@@ -78,29 +111,35 @@
                                     <td class="py-2 px-3 text-sm">
                                         {{ index + 1 }}
                                     </td>
-
-                                    <td v-for="key in Object.keys(row)" :key="key" class="py-2 px-3 text-sm">
-                                        {{ row[key] }}
+                                    <td v-for="headerKey in tableHeaders" :key="headerKey" class="py-2 px-3 text-sm">
+                                        {{ row[headerKey] }}
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
-                    <!-- <div class="w-full lg:1/2 bg-[#E6F6F9] p-4 rounded shadow">
-                        <h2 class="text-lg font-semibold mb-4">Analisis {{ selectedOption }}</h2>
-                        <RekapChart :dataChart="chartData" />
-                    </div> -->
 
+                    <!-- Container Grafik -->
                     <div v-if="tableData.length > 0" class="container-open-sans w-full lg:w-1/2 bg-[#E6F6F9] p-4 rounded shadow chart-container">
                         <h2 class="text-lg font-semibold mb-4">
-                            Analisis {{ selectedOption }}
+                            Analisis {{ selectedOption.label }}
                         </h2>
-                        <RekapChart :dataChart="chartData" />
+                         <RekapChart ref="rekapChartRef" :dataChart="chartData" />
+
+                         <div class="mt-4 text-right">
+                             <button
+                                 @click="handleExport('image/png')"
+                                 class="px-4 py-2 border border-[#3393AD] text-[#3393AD] hover:bg-[#3393AD] hover:text-white font-semibold transition mr-2"
+                                 :disabled="!rekapChartRef || !rekapChartRef.barRef || !rekapChartRef.barRef.chart"
+                             >
+                                 Export PNG
+                             </button>
+                         </div>
                     </div>
 
-                    <div v-else class="container-open-sans w-full lg:w-1/2 bg-[#E6F6F9] p-4 rounded shadow">
-                        <h2 class="text-lg font-semibold mb-4">
-                            Analisis {{ selectedOption }}
+                    <div v-else class="container-open-sans w-full lg:w-1/2 bg-[#E6F6F9] p-4 rounded shadow chart-container">
+                         <h2 class="text-lg font-semibold mb-4">
+                            Analisis {{ selectedOption.label }}
                         </h2>
                         <p class="text-center text-gray-500">
                             Tidak ada data untuk menampilkan grafik.
@@ -112,15 +151,16 @@
     </div>
 </template>
 
+      
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 
 import LeftBar from '../../../composables/LeftBar.vue';
 import RekapChart from '../../../composables/RekapChart.vue';
 import upIcon from '@/assets/pilih-up.svg';
 import downIcon from '@/assets/pilih-down.svg';
 
-import { 
+import {
     calculateGlukosaRekap,
     calculateStatusGiziRekap,
     calculateTekananDarahRekap,
@@ -133,15 +173,14 @@ import {
     calculateKolesterolLdlRekap,
     calculateTrigliseridaRekap,
     calculateUreumRekap,
-    calculateAsamUratRekap
- } from '../../../composables/recapCalculator';
+    calculateAsamUratRekap,
+    calculateRiwayatKesehatanRekap
+} from '../../../composables/recapCalculator';
 
- // Mock Data
- const allRawData = ref(mockRawData);
+const allRawData = ref([]); 
 const loadingData = ref(true);
 const fetchError = ref(null);
 
-// Dropdown
 const showDropdown = ref(false);
 const selectedOption = ref(null);
 
@@ -179,6 +218,18 @@ const calculationFunctions = {
     fungsiHati: calculateFungsiHatiRekap,
 };
 
+const availableYears = ref([]); 
+const selectedYear = ref('all'); 
+const showYearDropdown = ref(false); 
+
+const tableHeaders = ref([]);
+const tableData = ref([]);
+const chartData = ref({ labels: [], datasets: [] }); 
+
+const rekapChartRef = ref(null);
+
+
+// --- Dropdown Jenis Rekapitulasi Methods ---
 const toggleDropdown = () => {
   showDropdown.value = !showDropdown.value;
 };
@@ -186,97 +237,195 @@ const toggleDropdown = () => {
 const selectOption = (option) => {
   selectedOption.value = option;
   showDropdown.value = false;
-  if (allRawData.value.length > 0) {
-    loadRekapData(option.value); // Pass the value to loadRekapData
-  } else {
-      tableData.value = [];
-      tableHeaders.value = [];
-      chartData.value = { labels: [], datasets: [] };
-  }
+
+  triggerFilteringAndCalculation();
 };
 
 
-const tableHeaders = ref([]);
-const tableData = ref([]);
-const chartData = ref({});
+// --- Dropdown Filter Tahun Methods ---
+const toggleYearDropdown = () => {
+  showYearDropdown.value = !showYearDropdown.value;
+};
 
-const loadRekapData = (optionValue) => {
-  const calculate = calculationFunctions[optionValue];
+const selectYear = (year) => {
+  selectedYear.value = year;
+  showYearDropdown.value = false;
 
-  if (!calculate) {
+  triggerFilteringAndCalculation();
+};
+
+
+// --- Filtering and Calculation Logic ---
+const applyYearFilter = (data, yearFilter) => {
+    if (!data || data.length === 0 || yearFilter === 'all') {
+        return data; 
+    }
+
+    return data.filter(record => {
+        if (!record.examination_date) {
+            return false; 
+        }
+        try {
+            const recordYear = new Date(record.examination_date).getFullYear();
+            if (isNaN(recordYear)) {
+                console.warn("Invalid date format found:", record.examination_date);
+                return false;
+            }
+            return recordYear === yearFilter;
+        } catch (e) {
+            console.warn("Error parsing date:", record.examination_date, e);
+            return false; 
+        }
+    });
+};
+
+const triggerFilteringAndCalculation = () => {
     tableData.value = [];
     tableHeaders.value = [];
     chartData.value = { labels: [], datasets: [] };
-    console.warn(`Calculation function not found for option: ${optionValue}`);
-    return;
-  }
 
-  // Perform calculation using the fetched raw data
-  const data = calculate(allRawData.value);
-  tableData.value = data;
+    if (!loadingData.value && !fetchError.value && selectedOption.value) {
+        if (allRawData.value.length > 0) {
+            console.log(`Applying year filter: ${selectedYear.value}`);
+            const filteredData = applyYearFilter(allRawData.value, selectedYear.value);
+            console.log(`Filtered data count: ${filteredData.length}`);
 
-  // Dynamically determine headers from the first data row (excluding 'Jumlah')
-  if (data.length > 0) {
-      // Get keys of the first row, filter out 'Jumlah'
-      tableHeaders.value = Object.keys(data[0]).filter(key => key !== 'Jumlah');
-      // Add 'Jumlah' header at the end
-      tableHeaders.value.push('Jumlah');
-
-       // Prepare chart data
-      const chartLabels = data.map(row => {
-          // Get values for label columns (all except 'Jumlah')
-          const labelValues = Object.keys(row)
-              .filter(key => key !== 'Jumlah')
-              .map(key => row[key]);
-          // Join label values for the chart label
-          return labelValues.join(' - ');
-      });
-      const chartValues = data.map(row => row.Jumlah);
-
-      chartData.value = {
-        labels: chartLabels,
-        datasets: [
-          {
-            label: 'Jumlah',
-            backgroundColor: '#3DB1D5',
-            data: chartValues
-          }
-        ]
-      };
-
-  } else {
-      // If calculation returns no data, clear table/chart
-      tableHeaders.value = [];
-      chartData.value = { labels: [], datasets: [] };
-  }
+            performCalculation(selectedOption.value.value, filteredData);
+        } else {
+             console.warn("No raw data available after fetch.");
+        }
+    } else {
+         console.log("Skipping calculation: loading, error, or no option selected.");
+    }
 };
 
-// Fetch raw data from backend when the component is mounted
+
+const performCalculation = (optionValue, dataToCalculate) => {
+    const calculate = calculationFunctions[optionValue];
+
+    if (!calculate) {
+        console.warn(`Calculation function not found for option: ${optionValue}`);
+         tableData.value = [];
+         tableHeaders.value = [];
+         chartData.value = { labels: [], datasets: [] };
+        return;
+    }
+
+    console.log(`Performing calculation for "${optionValue}" with ${dataToCalculate.length} records.`);
+    const calculatedResult = calculate(dataToCalculate);
+    console.log("Calculation result:", calculatedResult);
+
+    tableData.value = calculatedResult;
+
+    if (calculatedResult.length > 0) {
+        tableHeaders.value = Object.keys(calculatedResult[0]);
+
+        const chartLabels = calculatedResult.map(row => {
+            const labelValues = Object.keys(row)
+                .filter(key => key !== 'Jumlah')
+                .map(key => row[key]);
+             return labelValues.map(val => val ?? '').join(' - ');
+        });
+        const chartValues = calculatedResult.map(row => row.Jumlah ?? 0); 
+
+        chartData.value = {
+            labels: chartLabels,
+            datasets: [
+              {
+                label: 'Jumlah',
+                backgroundColor: '#3DB1D5',
+                data: chartValues
+              }
+            ]
+        };
+
+    } else {
+        tableHeaders.value = [];
+        chartData.value = { labels: [], datasets: [] };
+    }
+};
+
+const handleExport = (type = 'image/png', quality = 1) => {
+    if (rekapChartRef.value && rekapChartRef.value.exportAsImage) {
+        const optionLabel = selectedOption.value ? selectedOption.value.label : 'data';
+        const yearLabel = selectedYear.value === 'all' ? 'SemuaTahun' : selectedYear.value;
+        const filename = `${optionLabel.replace(/\s+/g, '_')}_${yearLabel}_${Date.now()}.${type.split('/')[1]}`;
+
+        rekapChartRef.value.exportAsImage(type, filename, quality);
+    } else {
+        console.warn("RekapChart component or export method not available.");
+    }
+};
+
+
 onMounted(async () => {
     loadingData.value = true;
     fetchError.value = null;
     try {
-        // Replace with your actual backend endpoint
-        const response = await axios.get('/api/mcu-detailed-data');
-        // Assuming response.data is the array of patient objects
-        allRawData.value = response.data;
-        console.log("Fetched raw data for rekapitulasi:", allRawData.value.length, "records");
+        const response = await fetch('/api/mcu/raw-data');
 
-        // If a default option is selected on mount (optional) or if data was loaded before selecting
-        if (selectedOption.value && allRawData.value.length > 0) {
-             loadRekapData(selectedOption.value.value);
+        if (!response.ok) {
+            const errorBody = await response.text();
+             throw new Error(`HTTP error! status: ${response.status}, body: ${errorBody}`);
+        }
+
+        const data = await response.json();
+
+        if (Array.isArray(data)) {
+            allRawData.value = data;
+            console.log("Fetched raw data for rekapitulasi:", allRawData.value.length, "records");
+
+            // --- Extract unique years ---
+            const years = new Set();
+            data.forEach(record => {
+                 if (record.examination_date) {
+                     try {
+                         const year = new Date(record.examination_date).getFullYear();
+                         if (!isNaN(year)) {
+                             years.add(year);
+                         }
+                     } catch (e) {
+                         console.warn("Could not parse date for year extraction:", record.examination_date);
+                     }
+                 }
+            });
+            availableYears.value = ['all', ...Array.from(years).sort((a, b) => b - a)];
+            console.log("Available years:", availableYears.value);
+            // --- End Extract unique years ---
+
+            if (selectedOption.value) {
+                 triggerFilteringAndCalculation();
+            }
+
+        } else {
+             throw new Error("API response is not an array.");
         }
 
     } catch (error) {
-        console.error("Error fetching detailed MCU data:", error);
-        fetchError.value = error;
-        allRawData.value = []; // Clear data on error
+        console.error("Error fetching raw MCU data:", error);
+        fetchError.value = new Error(error.message || "Terjadi kesalahan saat mengambil data pasien.");
+        allRawData.value = [];
+        availableYears.value = [];
+        tableData.value = [];
+        tableHeaders.value = [];
+        chartData.value = { labels: [], datasets: [] };
+
     } finally {
         loadingData.value = false;
     }
 });
-</script>
 
+watch(selectedYear, (newYear, oldYear) => {
+     console.log(`selectedYear changed from ${oldYear} to ${newYear}`);
+    if (selectedOption.value) {
+        triggerFilteringAndCalculation();
+    } else {
+        console.log("Year changed, but no rekapitulasi option selected. Skipping calculation.");
+    }
+});
+
+
+</script>
 <style scoped>
 table th,
 table td {
@@ -290,4 +439,18 @@ table td {
 .container-open-sans {
     font-family: "Open Sans", sans-serif;
 }
+
+.chart-container {
+  height: 400px; 
+
+}
+
+.custom-dropdown {
+}
+
+.custom-dropdown-list {
+    max-height: 200px; 
+    overflow-y: auto;
+}
+
 </style>

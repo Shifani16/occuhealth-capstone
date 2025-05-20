@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Validation\Rule;
 
 class AuthController extends Controller
 {
@@ -27,6 +28,11 @@ class AuthController extends Controller
             'nip' => 'required|string|unique:users',
             'email' => 'required|email|unique:users',
             'password' => 'required|string|min:6|confirmed',
+            'role' => [
+                'required',
+                'string',
+                Rule::in(['admin', 'nakes']),
+            ],
         ]);
 
         $user = User::create([
@@ -34,6 +40,7 @@ class AuthController extends Controller
             'nip' => $request->nip,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => $request->role,
         ]);
 
         $token = $user->createToken('auth_token')->plainTextToken;

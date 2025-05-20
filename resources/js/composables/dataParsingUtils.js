@@ -51,4 +51,4 @@ export function parseKolesterolTotal(kolesterolString) {
  * @param {Object} keywordsMap - Map of lowercased keyword -> canonical name
  * @returns {Set<string>} Set of canonical names found
  */
-// export function findRiwayatKeywords(riwayatString, keywordsMap) { /* ... logic ... */ }
+export function findRiwayatKeywords(riwayatString, keywordsMap) { /* ... logic ... */ }

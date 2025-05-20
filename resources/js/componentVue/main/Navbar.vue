@@ -81,7 +81,7 @@
             <router-link
                 to="#"
                 @click.prevent="handleDashboardClick(); menuOpen = false;"
-                :class="linkClass('/pasien')"
+                :class="linkClass('/dashboard')"
                 >Dashboard</router-link
             >
 
@@ -139,10 +139,8 @@ const handleDashboardClick = () => {
   const user = localStorage.getItem('user');
 
   if (user) {
-    // If user exists, navigate to the dashboard
-    router.push('/pasien');
+    router.push('/dashboard');
   } else {
-    // If no user, navigate to the login page
     router.push('/login');
   }
 };

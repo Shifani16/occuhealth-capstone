@@ -73,7 +73,7 @@ class McuImport implements ToCollection
         'warna'                 => 55, 
         'kejernihan'            => 56, 
         'leukosit'              => 57, 
-        'eritrosit'             => 58, 
+        'eritrosit'             => 58,
         'epitel'                => 59,
         'bakteri'               => 60, 
         'silinder'              => 61, 

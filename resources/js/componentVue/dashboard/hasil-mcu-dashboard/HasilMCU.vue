@@ -24,7 +24,9 @@
                     <div class="ml-7 mb-10 flex justify-between items-center max-w-7xl">
                         <div class="container-open-sans bg-white text-white text-sm rounded-full px-4 py-1 text-[16px] font-bold whitespace-nowrap">
                         </div>
+                        <!-- Add v-if to hide for admin -->
                         <button
+                           v-if="loggedInUser.role !== 'admin'"
                            @click="showUploadModal = true"
                            @mouseover="hoveringTambah = true"
                            @mouseleave="hoveringTambah = false"
@@ -157,9 +159,7 @@
                                                         />
                                                     </div>
                                                 </th>
-                                                <th class="px-4 py-2 sticky top-0 z-10">
-                                                    Aksi
-                                                </th>
+                                                <th class="px-4 py-2" v-if="loggedInUser.role !== 'admin'">Aksi</th>
                                             </tr>
                                         </thead>
 
@@ -169,7 +169,6 @@
                                                 :key="item.no_pasien"
                                                 class="container-open-sans odd:bg-[#E6F6F9]"
                                             >
-                                                <!-- Perbaikan Index -->
                                                 <td class="px-6 py-4">
                                                     {{ index + 1 + (currentPage - 1) * entriesToShow }}
                                                 </td>
@@ -204,19 +203,18 @@
                                                                 /> -->
                                                                 <span>{{ item.status }}</span>
                                                             </div>
-                                                         
                                                             <img
-                                                                v-if="!item.isUpdatingStatus"
-                                                                :src="getStatusIcon(item.status)" 
+                                                                v-if="!item.isUpdatingStatus && loggedInUser.role !== 'admin'"
+                                                                :src="getStatusIcon(item.status)"
                                                                 class="w-5 h-5 -ml-3 transform transition-transform"
                                                                 :class="{'rotate-180': openDropdownId === item.id}"
                                                                 alt="Dropdown arrow"
                                                             />
-                                                            <div v-else class="spinner"></div> 
+                                                            <div v-else-if="item.isUpdatingStatus" class="spinner"></div>
                                                         </button>
 
                                                         <div
-                                                            v-if="openDropdownId === item.id"
+                                                            v-if="openDropdownId === item.id && loggedInUser.role !== 'admin'"
                                                             class="absolute z-30 mt-1 w-36 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
                                                             role="menu" aria-orientation="vertical" aria-labelledby="menu-button"
                                                         >
@@ -238,6 +236,7 @@
 
                                                 <td class="px-6 py-4 flex gap-2">
                                                     <button
+                                                        v-if="loggedInUser.role !== 'admin'"
                                                         @click="goToDetail(item)"
                                                         class="cursor-pointer w-6 h-6"
                                                     >
@@ -245,14 +244,15 @@
                                                     </button>
 
                                                     <button
+                                                        v-if="loggedInUser.role !== 'admin'"
                                                         @click="goToEdit(item)"
                                                         class="cursor-pointer w-6 h-6"
                                                     >
                                                         <img src="@/assets/action-edit.svg" title="Edit Hasil MCU" class="object-contain"/>
                                                     </button>
-                                                    
-                                                    <!-- Tombol Delete -->
+
                                                     <button
+                                                        v-if="loggedInUser.role !== 'admin'"
                                                         @click="selectHasilToDelete(item)"
                                                         class="cursor-pointer w-6 h-6 object-contain"
                                                     >
@@ -278,7 +278,7 @@
     </div>
 
      <UploadMCU
-        v-if="showUploadModal"
+        v-if="showUploadModal && loggedInUser.role !== 'admin'"
         @close="showUploadModal = false"
         @uploadSuccess="handleUploadSuccess"
         @uploadError="() => { showUploadModal = false; showErrorPopup = true; }"
@@ -315,7 +315,7 @@
         </div>
     </div>
 
-    <!-- Pop Up Sukses (Upload/Delete) -->
+    <!-- Pop Up Sukses (Upload/Delete) - Keep visible -->
     <div v-if="showSuccessPopup" class="fixed inset-0 bg-[rgba(0,0,0,0.3)] flex items-center justify-center z-50">
         <div class="bg-[#27394B] p-6 rounded-2xl shadow-md w-96 text-center">
             <img src="@/assets/circle-check.svg" class="w-20 mx-auto mb-4"/>
@@ -326,7 +326,7 @@
         </div>
      </div>
 
-    <!-- Pop Up Error (Upload/Delete) -->
+    <!-- Pop Up Error (Upload/Delete) - Keep visible -->
      <div v-if="showErrorPopup" class="fixed inset-0 bg-[rgba(0,0,0,0.3)] flex items-center justify-center z-50">
         <div class="bg-[#27394B] p-6 rounded-2xl shadow-md w-96 text-center">
             <img src="@/assets/cloud-x.svg" class="w-20 mx-auto mb-4"/>
@@ -347,6 +347,8 @@ import LeftBar from "../../../composables/LeftBar.vue";
 import UploadMCU from "../../../composables/UploadMCU.vue";
 import TambahMCU from "@/assets/tambah-hasil-mcu.svg";
 import TambahMCUHover from "@/assets/tambah-hasil-mcu-hover.svg";
+
+const loggedInUser = ref({ role: null });
 
 const collapsed = ref(false);
 const hovering = ref(false);
@@ -375,23 +377,36 @@ const showDeleteConfirm = ref(false);
 const hasilToDelete = ref(null);
 
 function toggleDropdown(itemId) {
-    if (openDropdownId.value === itemId) {
-        openDropdownId.value = null;
-    } else {
-        openDropdownId.value = itemId;
+    if (loggedInUser.value.role !== 'admin') {
+        if (openDropdownId.value === itemId) {
+            openDropdownId.value = null;
+        } else {
+            openDropdownId.value = itemId;
+        }
     }
 }
 
 async function selectStatus(item, newStatus) {
+     if (loggedInUser.value.role === 'admin') {
+         console.warn("Admin users cannot change status.");
+         openDropdownId.value = null; 
+         return;
+     }
+
+
     if (item.status === newStatus) {
         openDropdownId.value = null;
         return;
     }
 
     const originalStatus = item.status;
-    item.status = newStatus; 
+    item.status = newStatus;
     openDropdownId.value = null;
+    if (!item.hasOwnProperty('isUpdatingStatus')) {
+        item = reactive(item);
+    }
     item.isUpdatingStatus = true;
+
 
     try {
         const response = await axios.put(`/api/mcu-patients/${item.id}/status`, { status: newStatus });
@@ -403,7 +418,7 @@ async function selectStatus(item, newStatus) {
     } catch (error) {
         console.error(`Error updating status for item ${item.id} to ${newStatus}:`, error);
 
-        item.status = originalStatus; 
+        item.status = originalStatus;
         errorMessage.value = `Gagal mengubah status menjadi ${newStatus}: ${error.message || (error.response?.data?.message || 'Server Error')}`;
         showErrorPopup.value = true;
     } finally {
@@ -412,7 +427,6 @@ async function selectStatus(item, newStatus) {
 }
 
 function getStatusIcon(status) {
-   
     switch (status) {
         case 'Completed':
             return new URL('@/assets/arrow-down-green.svg', import.meta.url).href;
@@ -421,7 +435,6 @@ function getStatusIcon(status) {
         case 'Canceled':
             return new URL('@/assets/arrow-down-red.svg', import.meta.url).href;
         default:
-            
              return new URL('@/assets/arrow-down-grey.svg', import.meta.url).href;
     }
 }
@@ -444,14 +457,14 @@ async function fetchMcuData() {
                     })
                     : "N/A";
 
-                return {
-                    id: item.id, 
+                return reactive({
+                    id: item.id,
                     nama: item.patient ? item.patient.name : item.name || "N/A",
                     tanggal_pemeriksaan: examinationDate,
                     no_pasien: item.patient ? item.patient.patient_id : "N/A",
-                    status: item.status || "N/A",
-                    isUpdatingStatus: false, 
-                };
+                    status: item.status || "Process", 
+                    isUpdatingStatus: false,
+                });
             });
          } else {
              console.error(
@@ -492,19 +505,43 @@ async function fetchMcuData() {
 }
 
 function handleClickOutside(event) {
-  if (showDeleteConfirm.value || showUploadModal.value || showSuccessPopup.value || showErrorPopup.value) {
-      return;
-  }
+  if (loggedInUser.value.role !== 'admin') {
+        if (showDeleteConfirm.value || showUploadModal.value || showSuccessPopup.value || showErrorPopup.value) {
+            return;
+        }
 
-  if (openDropdownId.value && dropdownRefs[openDropdownId.value]) {
-    const dropdownElement = dropdownRefs[openDropdownId.value];
-    if (!dropdownElement.contains(event.target)) {
-      openDropdownId.value = null;
-    }
+        if (openDropdownId.value && dropdownRefs[openDropdownId.value]) {
+            const dropdownElement = dropdownRefs[openDropdownId.value];
+            if (!dropdownElement.contains(event.target)) {
+                openDropdownId.value = null;
+            }
+        }
+  } else {
+        if (showDeleteConfirm.value || showUploadModal.value || showSuccessPopup.value || showErrorPopup.value) {
+             return;
+        }
+         openDropdownId.value = null;
   }
 }
 
+
 onMounted(() => {
+    // Load user role from localStorage first
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+        try {
+            const user = JSON.parse(storedUser);
+            // Ensure role exists, default to null
+            loggedInUser.value = { ...user, role: user.role || null };
+        } catch (e) {
+            console.error("Failed to parse user from localStorage in HasilMCU:", e);
+            loggedInUser.value = { role: null }; // Reset on error
+        }
+    } else {
+        loggedInUser.value = { role: null }; // Set default if no user in storage
+    }
+
+    // Then fetch data and set up event listener
     fetchMcuData();
     document.addEventListener('click', handleClickOutside);
 });
@@ -578,6 +615,15 @@ function goToPage(page) {
 }
 
 function selectHasilToDelete(item) {
+     // Only allow deletion if user is NOT admin
+     if (loggedInUser.value.role === 'admin') {
+         console.warn("Admin users cannot delete data.");
+         // Optionally show a message
+         // errorMessage.value = "Anda tidak memiliki izin untuk menghapus data.";
+         // showErrorPopup.value = true;
+         return;
+     }
+
     console.log("selectHasilToDelete triggered for:", item);
     hasilToDelete.value = item;
     showDeleteConfirm.value = true;
@@ -606,7 +652,6 @@ async function confirmDeleteHasil() {
     errorMessage.value = "";
 
     try {
-        // Endpoint DELETE hasil MCU
         const response = await axios.delete(
             `/api/mcu-patients/${hasilToDelete.value.id}`
         );
@@ -615,14 +660,12 @@ async function confirmDeleteHasil() {
         successMessage.value = "Data hasil MCU berhasil dihapus";
         showSuccessPopup.value = true;
 
-        // Hapus item dari list lokal
         hasilList.value = hasilList.value.filter(
             (item) => item.id !== hasilToDelete.value.id
         );
 
         hasilToDelete.value = null;
 
-        // Update Pagination
         const currentFilteredCount = hasilList.value.filter(
             (item) =>
                 item.nama?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
@@ -665,43 +708,49 @@ async function confirmDeleteHasil() {
 
 // --- Modal and Popup Handlers (Upload) ---
 function handleUploadSuccess(response) {
-    showUploadModal.value = false;
-    successMessage.value = response.message || "File Anda berhasil ditambahkan";
-    showSuccessPopup.value = true;
+    // Only process if user is NOT admin (shouldn't be triggered by admin anyway due to v-if)
+    if (loggedInUser.value.role !== 'admin') {
+        showUploadModal.value = false;
+        successMessage.value = response.message || "File Anda berhasil ditambahkan";
+        showSuccessPopup.value = true;
 
-    fetchMcuData(); // Refresh data
+        fetchMcuData(); // Refresh data
+    }
 }
 
 function handleUploadError(error) {
-    console.error("Upload failed:", error);
-    showUploadModal.value = false;
+    // Only process if user is NOT admin
+     if (loggedInUser.value.role !== 'admin') {
+        console.error("Upload failed:", error);
+        showUploadModal.value = false;
 
-    let message = "Terjadi kesalahan saat mengunggah file.";
-    if (error.response && error.response.data) {
-        if (error.response.data.message) {
-            message = error.response.data.message;
-        } else if (error.response.data.error) {
-            message = error.response.data.error;
-            if (
+        let message = "Terjadi kesalahan saat mengunggah file.";
+        if (error.response && error.response.data) {
+            if (error.response.data.message) {
+                message = error.response.data.message;
+            } else if (error.response.data.error) {
+                message = error.response.data.error;
+                if (
+                    error.response.data.messages &&
+                    Array.isArray(error.response.data.messages)
+                ) {
+                    message += ": " + error.response.data.messages.join(", ");
+                }
+            } else if (
                 error.response.data.messages &&
                 Array.isArray(error.response.data.messages)
             ) {
-                message += ": " + error.response.data.messages.join(", ");
+                message = error.response.data.messages.join(", ");
+            } else if (typeof error.response.data === "string") {
+                message = error.response.data;
             }
-        } else if (
-            error.response.data.messages &&
-            Array.isArray(error.response.data.messages)
-        ) {
-            message = error.response.data.messages.join(", ");
-        } else if (typeof error.response.data === "string") {
-            message = error.response.data;
+        } else if (error.message) {
+            message = `Upload gagal: ${error.message}`;
         }
-    } else if (error.message) {
-        message = `Upload gagal: ${error.message}`;
-    }
 
-    errorMessage.value = message;
-    showErrorPopup.value = true;
+        errorMessage.value = message;
+        showErrorPopup.value = true;
+     }
 }
 
 // --- Navigation ---
@@ -723,12 +772,21 @@ function goToDetail(item) {
 }
 
 function goToEdit(item) {
+     // Only allow edit if user is NOT admin
+     if (loggedInUser.value.role === 'admin') {
+         console.warn("Admin users cannot edit data.");
+         // Optionally show a message
+         // errorMessage.value = "Anda tidak memiliki izin untuk mengedit data.";
+         // showErrorPopup.value = true;
+         return;
+     }
+
     console.log("Navigate to edit for:", item);
     if (item && item.id) {
         router.push({
             name: "HasilMCUEdit",
             params: { id: item.id },
-            state: { patientData: item }
+            state: { patientData: item } // Note: State might not persist on refresh
         });
     } else {
         console.error(
