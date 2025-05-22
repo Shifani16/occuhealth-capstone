@@ -720,9 +720,11 @@ nav {
 }
 
 table,
-th,
+th {
+    /* border: 1px solid #e0e0e0; */
+}
 td {
-    border: 1px solid #e0e0e0;
+    /* border: 1px solid #e0e0e0; */
 }
 
 th {

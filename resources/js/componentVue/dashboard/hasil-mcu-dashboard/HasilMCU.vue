@@ -159,7 +159,7 @@
                                                         />
                                                     </div>
                                                 </th>
-                                                <th class="px-4 py-2" v-if="loggedInUser.role !== 'admin'">Aksi</th>
+                                                <th class="px-4 py-2 sticky top-0 z-10" v-if="loggedInUser.role !== 'admin'">Aksi</th>
                                             </tr>
                                         </thead>
 

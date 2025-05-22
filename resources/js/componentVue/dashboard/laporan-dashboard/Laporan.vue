@@ -23,8 +23,13 @@
                     <span class="min-w-41 text-[16px] font-semibold">Periode tanggal input:</span>
 
                     <!-- Calendar Selection (From Date) -->
-                    <div class="relative">
-                        <input ref="startInput" type="date" v-model="startDate" class="rounded-[16px] lg:w-60 bg-[#8AD3E5] font-semibold px-4 py-2 rounded" />
+                    <div class="relative w-fit">
+                        <input 
+                            ref="startInput" 
+                            type="date" 
+                            v-model="startDate" 
+                            class="rounded-[16px] lg:w-60 bg-[#8AD3E5] font-semibold px-4 py-2 rounded" 
+                        />
                         <img 
                             src="@/assets/calendar-grouped.svg" 
                             class="absolute -right-2 top-1/2 -translate-y-1/2 h-10"
@@ -34,8 +39,13 @@
                     <span class=" text-[16px] font-semibold">Sampai</span>
 
                     <!-- Calendar Selection (To Date) -->
-                    <div class="relative">
-                        <input ref="endInput" type="date" v-model="endDate" class="rounded-[16px] lg:w-60 bg-[#8AD3E5] font-semibold px-4 py-2 rounded" />
+                    <div class="relative w-fit">
+                        <input 
+                            ref="endInput" 
+                            type="date" 
+                            v-model="endDate" 
+                            class="rounded-[16px] lg:w-60 bg-[#8AD3E5] font-semibold px-4 py-2 rounded" 
+                        />
                         <img 
                             src="@/assets/calendar-grouped.svg" 
                             class="absolute -right-2 top-1/2 -translate-y-1/2 h-10"
@@ -164,10 +174,10 @@ function goToPage(page) {
 
 function openCalendar(type) {
     console.log(`Attempting to open calendar for type: ${type}`);
-    if (type === 'start') {
-        startInput.value?.click(); 
-    } else if (type === 'end') {
-        endInput.value?.click();
+    if (type === 'start' && startInput.value) {
+        startInput.value.showPicker?.() || startInput.value.click();
+    } else if (type === 'end' && endInput.value) {
+        endInput.value.showPicker?.() || endInput.value.click();
     }
 }
 
@@ -235,11 +245,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
 }
 
-input[type="date"]::-moz-calendar-picker-indicator {
-    opacity: 0;
-    pointer-events: all;
-    cursor: pointer;
-}
 
 .container-nunito {
   font-family: "Nunito", sans-serif;
