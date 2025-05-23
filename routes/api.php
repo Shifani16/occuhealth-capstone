@@ -10,6 +10,7 @@ use App\Http\Controllers\dashboard\McuResultController;
 use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\Api\ImportController;
 use App\Http\Controllers\Api\McuDataController;
+use App\Http\Controllers\ReportController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -66,4 +67,6 @@ Route::prefix('mcu-results')->group(function () {
 });
 
 Route::post('/contact', [ContactController::class, 'sendContactForm']);
+
+Route::post('/reports/generate', [ReportController::class, 'generate']);
 

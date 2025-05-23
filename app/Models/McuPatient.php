@@ -19,10 +19,9 @@ class McuPatient extends Model
         'examination_date' => 'date',
     ];
 
-
-    public function mcuResult()
+    public function mcuResults()
     {
-        return $this->hasMany(McuResult::class);
+         return $this->hasMany(McuResult::class, 'patient_id');
     }
 
     public function patient()

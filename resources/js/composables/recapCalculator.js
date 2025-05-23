@@ -116,35 +116,6 @@ export function calculateTekananDarahRekap(data) {
     let sistolikTerisolasi = 0;
     let tidakAdaData = 0;
 
-    // data.forEach(item => {
-    //     const tdString = item['TD'] || item['Tekanan Darah'];
-    //     const { sistolik, diastolik } = parseTD(tdString); // Implement parseTD in dataParsingUtils
-
-    //     if (isNaN(sistolik) || isNaN(diastolik)) {
-    //         tidakAdaData++;
-    //         return;
-    //     }
-
-    //     if (sistolik >= 180 || diastolik >= 110) {
-    //         hipertensiIII++;
-    //     } else if ((sistolik >= 160 && sistolik <= 179) || (diastolik >= 100 && diastolik <= 109)) {
-    //         hipertensiII++;
-    //     } else if ((sistolik >= 140 && sistolik <= 159) || (diastolik >= 90 && diastolik <= 99)) {
-    //         hipertensiI++;
-    //     } else if (sistolik >= 140 && diastolik < 90) {
-    //         if (sistolik >= 140 && diastolik < 90) {
-    //             sistolikTerisolasi++;
-    //         } else if ((sistolik >= 130 && sistolik <= 139) || (diastolik >= 85 && diastolik <= 89)) {
-    //             preHipertensi++;
-    //         } else if (sistolik < 130 && diastolik < 85) {
-    //             if (sistolik < 120 && diastolik < 80) {
-    //                 optimal++;
-    //             } else { // S < 130 && D < 85 but not Optimal
-    //                 normal++;
-    //             }
-    //         }
-    //     }
-    // });
     data.forEach(item => {
         const tdString = item['TD'] || item['Tekanan Darah']; // Handle potential key variation
         const { sistolik, diastolik } = parseTD(tdString); // parseTD handles NaN
@@ -158,38 +129,14 @@ export function calculateTekananDarahRekap(data) {
         if (sistolik >= 180 || diastolik >= 110) {
             hipertensiIII++;
         } else if ((sistolik >= 160 && sistolik <= 179) || (diastolik >= 100 && diastolik <= 109)) {
-             // If S is 160-179 and D is <100, it's Htn II based on S.
-             // If S is <160 and D is 100-109, it's Htn II based on D.
+
             hipertensiII++;
         } else if ((sistolik >= 140 && sistolik <= 159) || (diastolik >= 90 && diastolik <= 99)) {
-             // If S is 140-159 and D is <90, it's Htn I based on S.
-             // If S is <140 and D is 90-99, it's Htn I based on D.
+
             hipertensiI++;
         } else if (sistolik >= 130 && sistolik <= 139 || diastolik >= 85 && diastolik <= 89) {
             preHipertensi++;
         } else if (sistolik >= 140 && diastolik < 90) {
-             // Isolated Systolic Hypertension: S >= 140 AND D < 90.
-             // This category should only apply if it didn't fall into Htn I, II, or III already.
-             // By placing this after Htn I, II, III, this logic implies S >= 140 AND D < 90, AND S < 160 AND D < 100 AND S < 180 AND D < 110.
-             // This correctly captures ISH when S >= 140 and D is Normal/Optimal range.
-             // The prompt lists it separately, suggesting it might *not* be mutually exclusive in their view, but standard is usually mutually exclusive.
-             // Let's refine order based on standard interpretation to ensure mutual exclusivity based on highest category.
-             // Re-ordered logic: Htn III, Htn II, Htn I (based on S or D), ISH (S>=140, D<90, NOT Htn I/II/III), Pre-Htn, Normal, Optimal.
-             // Let's try again with strict ranges and check for ISH carefully.
-            // ISH: S >= 140 AND D < 90.
-            // Does it overlap with Htn I? Yes, if S is 140-159 and D < 90. In standard practice, Htn I takes precedence if S >= 140 AND D >= 90.
-            // If S >= 140 AND D < 90, it's ISH UNLESS S or D also qualify it for Htn II or III.
-            // Let's use the ranges as described in the prompt, applying them in a sequence that handles overlaps reasonably.
-
-            // Strict mutually exclusive rules based on standard practice:
-            // 1. Htn III: S >= 180 OR D >= 110
-            // 2. Htn II: (S 160-179 AND D < 110) OR (D 100-109 AND S < 180)
-            // 3. Htn I: (S 140-159 AND D < 100) OR (D 90-99 AND S < 160)
-            // 4. ISH: S >= 140 AND D < 90 (This is covered by Htn I S-range if D is also >=90, or Htn II/III S-range. It's distinct when S>=140 but D is Normal/Optimal).
-            // Let's put ISH after Htn I to correctly capture the "isolated" part (D is normal).
-            // 5. Pre-Htn: (S 130-139 AND D < 90) OR (D 85-89 AND S < 140)
-            // 6. Normal: (S 120-129 AND D < 85) OR (D 80-84 AND S < 120)
-            // 7. Optimal: S < 120 AND D < 80
 
             if (sistolik < 120 && diastolik < 80) {
                 optimal++;
@@ -198,24 +145,7 @@ export function calculateTekananDarahRekap(data) {
             } else if ((sistolik >= 130 && sistolik <= 139) || (diastolik >= 85 && diastolik <= 89)) {
                 preHipertensi++;
             } else if (sistolik >= 140 && diastolik < 90) {
-                 // Check for ISH after Pre-Htn but before full Htn I/II/III checks based *only* on the other value.
-                 // This needs careful ordering. Standard is S >= 140 AND D < 90.
-                 // If D < 90, it cannot be Htn I/II/III based on D. So ISH is when S >= 140 and D is "low".
-                 // Let's check ISH after Pre-Htn and before the main Htn checks that involve D >= 90.
-                 // Re-ordering attempt 3: Optimal, Normal, Pre-Htn, ISH, Htn I, Htn II, Htn III.
-                 // This doesn't work perfectly because S 140-159, D 80 is ISH, but also falls into Htn I S range.
-                 // Let's follow the *exact rules* as written in the prompt, prioritizing higher thresholds first, and handle ISH as a specific case after Htn I.
 
-                 // Order based on prompt:
-                 // Htn III (S>=180 || D>=110)
-                 // Htn II ((S 160-179 AND D < 110) || (D 100-109 AND S < 180))
-                 // Htn I ((S 140-159 AND D < 100) || (D 90-99 AND S < 160))
-                 // Pre-Htn ((S 130-139 AND D < 90) || (D 85-89 AND S < 140))
-                 // ISH (S >= 140 AND D < 90) -- This definition overlaps with Htn I, II, III S-ranges when D is low. Let's refine: ISH is S>=140 AND D < 90 AND NOT already classified by the *diastolic* criteria of Htn I/II/III.
-                 // Normal (S < 130 AND D < 85) -- excluding Optimal
-                 // Optimal (S < 120 AND D < 80)
-
-                // Let's use a flag approach to ensure each patient is counted in only one category (mutually exclusive)
                 let classified = false;
                 if (sistolik >= 180 || diastolik >= 110) {
                     hipertensiIII++; classified = true;
@@ -226,19 +156,6 @@ export function calculateTekananDarahRekap(data) {
                 } else if (sistolik >= 130 && sistolik <= 139 || diastolik >= 85 && diastolik <= 89) {
                      preHipertensi++; classified = true;
                 } else if (sistolik >= 140 && diastolik < 90) {
-                     // ISH: S >= 140 AND D < 90.
-                     // Check if already classified by the D value (which it wouldn't be if D < 90 in previous steps).
-                     // Check if already classified by S value that implies a higher D category (not possible if D < 90).
-                     // So, if S >= 140 and D < 90, and not classified by D>=90 earlier, it's ISH.
-                     // This check should probably come before Pre-Htn and Normal/Optimal, because S>=140 is higher risk than Pre-Htn.
-                     // Let's re-order again: Htn III, Htn II, Htn I (based on D), ISH (S>=140, D<90), Htn I (based on S, when D is <90, but S puts it in range), Pre-Htn, Normal, Optimal. This is getting complicated.
-
-                     // Simplest interpretation respecting all categories listed and common sense:
-                     // Prioritize severe hypertension (III, II, I by *either* S or D).
-                     // Then ISH (S >= 140 AND D < 90).
-                     // Then Pre-Htn (by *either* S or D, if not already classified).
-                     // Then Normal (S < 130 AND D < 85, not Optimal/PreHtn/Htn/ISH).
-                     // Then Optimal (S < 120 AND D < 80).
 
                     classified = false; // Reset flag for re-evaluation based on final order
 
@@ -257,13 +174,7 @@ export function calculateTekananDarahRekap(data) {
                     } else if (sistolik < 120 && diastolik < 80) {
                          optimal++;
                     }
-                    // Note: Some combinations (e.g., S=150, D=85) could fit multiple ranges depending on interpretation.
-                    // The above re-structured logic tries to follow the prompt's ranges sequentially for counts.
-                    // Let's revert to the *sample output's categories* which imply mutual exclusivity (Optimal, Normal)
-                    // and then add the other standard categories as distinct counts.
-                    // The sample output only shows Optimal and Normal categories derived from TD.
-                    // The prompt *list* has 7 categories. The prompt *rules* define them.
-                    // Let's go back to the first structured attempt, which is more standard for mutual exclusivity, and correct the ISH placement.
+                    
                 }
             }
         }
@@ -300,19 +211,8 @@ export function calculateTekananDarahRekap(data) {
          } else if (sistolik < 120 && diastolik < 80) {
              tdCounts.optimal++;
          }
-         // Any values not falling into these specific ranges are implicitly excluded or counted in 'Tidak Ada Data' if the numbers were invalid.
-         // If numbers were valid but outside all ranges (e.g., S=50, D=30), they are currently not counted in any category. This is acceptable unless "Sangat Rendah" is needed.
+      
      });
-
-    // const results = [];
-    // if (optimal > 0) results.push({ Kategori: 'Optimal', Jumlah: optimal });
-    // if (normal > 0) results.push({ Kategori: 'Normal', Jumlah: normal });
-    // if (preHipertensi > 0) results.push({ Kategori: 'Prehipertensi', Jumlah: preHipertensi });
-    // if (hipertensiI > 0) results.push({ Kategori: 'Hipertensi Grade I', Jumlah: hipertensiI });
-    // if (hipertensiII > 0) results.push({ Kategori: 'Hipertensi Grade II', Jumlah: hipertensiII });
-    // if (hipertensiIII > 0) results.push({ Kategori: 'Hipertensi Grade III', Jumlah: hipertensiIII });
-    // if (sistolikTerisolasi > 0) results.push({ Kategori: 'Hipertensi Sistolik Terisolasi', Jumlah: sistolikTerisolasi });
-    // if (tidakAdaData > 0) results.push({ Kategori: 'Tidak Ada Data', Jumlah: tidakAdaData });
 
     // return results;
     const results = [];
