@@ -213,11 +213,11 @@
                     class="w-20 mx-auto mt-4 mb-4"
                 />
                 <p class="text-white px-4 py-2 font-medium mb-4">
-                    Pesan sudah terkirim! Terima kasih atas umpan baliknya!.
+                    Pesan sudah terkirim! Terima kasih atas umpan baliknya!
                 </p>
                 <button
                     class="bg-transparent text-white border border-white px-4 py-2 rounded-md hover:bg-white hover:text-[#27394B] font-semibold"
-                    @click="showEmptyWarningPopUp = false"
+                    @click="showSuccessPopup = false"
                 >
                     Tutup
                 </button>
@@ -253,9 +253,12 @@ onMounted(() => {
     }
 });
 
+const showSuccessPopup = ref(false);
+const showWarningPopup = ref(false);
+
 const submitContactForm = async () => {
     if (!email.value || !message.value) {
-        alert("Email and Message are required.");
+        showWarningPopup.value = true;
         return;
     }
 
@@ -278,21 +281,18 @@ const submitContactForm = async () => {
         const result = await response.json();
 
         if (response.ok) {
-            alert(result.message);
+            showSuccessPopup.value = true;
             phone.value = "";
             message.value = "";
         } else {
-            alert(
-                `Gagal mengirim pesan: ${
-                    result.message || "Terjadi kesalahan."
-                }`
-            );
+            showWarningPopup.value = true;
         }
     } catch (error) {
         console.error("Error submitting contact form:", error);
-        alert("Terjadi kesalahan saat mengirim pesan. Mohon coba lagi nanti.");
+        showWarningPopup.value = true;
     }
 };
+
 
 // Footer
 const footerEmail = ref("");

@@ -29,20 +29,20 @@
 
                     <!-- Calendar Selection (From Date) -->
                     <div class="relative">
-                        <input type="date" v-model="startDate" class="rounded-[16px] lg:w-60 bg-[#8AD3E5] font-semibold px-4 py-2 rounded" />
-                        <img
-                           src="@/assets/calendar-grouped.svg"
-                           class="absolute -right-2 top-1/2 -translate-y-1/2 h-10"
-                           style="pointer-events: none;"  />
+                        <input ref="startInput" type="date" v-model="startDate" class="rounded-[16px] lg:w-60 bg-[#8AD3E5] font-semibold px-4 py-2 rounded" />
+                        <img 
+                            src="@/assets/calendar-grouped.svg" 
+                            class="absolute -right-2 top-1/2 -translate-y-1/2 h-10"
+                            @click="openCalendar('start')" />
                     </div>
 
                     <span class=" text-[16px] font-semibold">Sampai</span>
 
                     <!-- Calendar Selection (To Date) -->
                     <div class="relative">
-                        <input type="date" v-model="endDate" class="rounded-[16px] lg:w-60 bg-[#8AD3E5] font-semibold px-4 py-2 rounded" />
-                        <img
-                            src="@/assets/calendar-grouped.svg"
+                        <input ref="endInput" type="date" v-model="endDate" class="rounded-[16px] lg:w-60 bg-[#8AD3E5] font-semibold px-4 py-2 rounded" />
+                        <img 
+                            src="@/assets/calendar-grouped.svg" 
                             class="absolute -right-2 top-1/2 -translate-y-1/2 h-10"
                             style="pointer-events: none;" />
                     </div>
@@ -173,9 +173,36 @@ const paginatedReports = computed(() => {
   const start = (currentPage.value - 1) * entriesPerPage;
   return reports.value.slice(start, start + entriesPerPage);
 });
-function prevPage() { if (currentPage.value > 1) currentPage.value--; }
-function nextPage() { if (currentPage.value < totalPages.value) currentPage.value++; }
-function goToPage(page) { currentPage.value = page; }
+
+function prevPage() {
+  if (currentPage.value > 1) currentPage.value--;
+}
+
+function nextPage() {
+  if (currentPage.value < totalPages.value) currentPage.value++;
+}
+
+function goToPage(page) {
+  currentPage.value = page;
+}
+
+function openCalendar(type) {
+    console.log(`Attempting to open calendar for type: ${type}`);
+    if (type === 'start') {
+        startInput.value?.click(); 
+    } else if (type === 'end') {
+        endInput.value?.click();
+    }
+}
+
+function applyFilter() {
+    isFilterActive.value = true;
+    currentPage.value = 1;
+
+    console.log('Filter applied with Start Date (yyyy-mm-dd):', startDate.value, 'and End Date (yyyy-mm-dd):', endDate.value);
+}
+
+
 function formatDateDisplay(dateString) {
     if (!dateString) return '';
      try {
@@ -331,7 +358,6 @@ input[type="date"]::-moz-calendar-picker-indicator {
     opacity: 0;
     pointer-events: all;
     cursor: pointer;
-    z-index: 1;
 }
 
 .container-nunito {

@@ -18,11 +18,12 @@
             <main class="flex-1 px-10 py-6">
                 <h1 class="text-4xl font-bold mb-6">Rekapitulasi</h1>
 
-                <div class="relative mb-6 w-64">
+                <div class="relative mb-6 w-64" ref="rekapDropdownRef">
                     <button
                         class="w-full flex justify-between items-center px-4 py-2 rounded bg-[#E6F6F9] hover:bg-[#C9EBF3] transition"
                         @click="toggleDropdown"
                         :class="{ 'bg-[#C9EBF3]' : showDropdown }"
+                        :disabled="loadingData || fetchError || allRawData.length === 0"
                     >
                         <span>{{ selectedOption ? selectedOption.label : 'Pilih Jenis Rekapitulasi' }}</span>
                         <img
@@ -153,7 +154,7 @@
 
       
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 
 import LeftBar from '../../../composables/LeftBar.vue';
 import RekapChart from '../../../composables/RekapChart.vue';
@@ -183,6 +184,12 @@ const fetchError = ref(null);
 
 const showDropdown = ref(false);
 const selectedOption = ref(null);
+
+const handleClickOutside = (event) => {
+    if (rekapDropdownRef.value && !rekapDropdownRef.value.contains(event.target)) {
+        showDropdown.value = false;
+    }
+};
 
 const options = [
   { label: 'Gangguan Metabolisme Glukosa', value: 'glukosa' },
@@ -227,7 +234,7 @@ const tableData = ref([]);
 const chartData = ref({ labels: [], datasets: [] }); 
 
 const rekapChartRef = ref(null);
-
+const rekapDropdownRef = ref(null);
 
 // --- Dropdown Jenis Rekapitulasi Methods ---
 const toggleDropdown = () => {
@@ -356,7 +363,6 @@ const handleExport = (type = 'image/png', quality = 1) => {
         console.warn("RekapChart component or export method not available.");
     }
 };
-
 
 onMounted(async () => {
     loadingData.value = true;
