@@ -52,7 +52,7 @@
                         </button>
 
                          <!-- Add v-if to hide for admin -->
-                        <button
+                        <!-- <button
                             v-if="loggedInUser.role !== 'admin'"
                             @click="goToEdit(pasienData)"
                             @mouseover="hoveringEdit = true"
@@ -63,7 +63,7 @@
                         >
                             <img src="@/assets/edit.svg" class="h-5" />
                             Edit Data Pasien
-                        </button>
+                        </button> -->
                     </div>
                 </template>
 

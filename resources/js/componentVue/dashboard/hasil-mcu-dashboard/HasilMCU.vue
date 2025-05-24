@@ -243,13 +243,13 @@
                                                         <img src="@/assets/action-info.svg" title="Lihat Detail Hasil MCU" class="object-contain"/>
                                                     </button>
 
-                                                    <button
+                                                    <!-- <button
                                                         v-if="loggedInUser.role !== 'admin'"
                                                         @click="goToEdit(item)"
                                                         class="cursor-pointer w-6 h-6"
                                                     >
                                                         <img src="@/assets/action-edit.svg" title="Edit Hasil MCU" class="object-contain"/>
-                                                    </button>
+                                                    </button> -->
 
                                                     <button
                                                         v-if="loggedInUser.role !== 'admin'"

@@ -85,7 +85,7 @@
 
 
                      <!-- Edit Button - Add v-if to hide for admin -->
-                     <div v-if="loggedInUser.role !== 'admin'" class="flex justify-end gap-4 mt-14 text-[18px] container-open-sans">
+                     <!-- <div v-if="loggedInUser.role !== 'admin'" class="flex justify-end gap-4 mt-14 text-[18px] container-open-sans">
                          <button
                              @click="goToEdit(route.params.id)"
                              @mouseover="hoveringEdit = true"
@@ -98,7 +98,7 @@
                              <img src="@/assets/edit.svg" class="h-5"/>
                              Edit
                          </button>
-                     </div>
+                     </div> -->
 
                      <!-- Message if no data is available -->
                      <div v-if="!pasien && hasilMCU.length === 0 && !saran && !loading && !fetchError" class="ml-7 mt-8 text-center text-gray-600">

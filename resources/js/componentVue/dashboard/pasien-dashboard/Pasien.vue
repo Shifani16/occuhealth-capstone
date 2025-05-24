@@ -212,7 +212,7 @@
                                                     />
                                                 </button>
                                                 <!-- Edit Button (Hide for Admin) -->
-                                                <button
+                                                <!-- <button
                                                     v-if="loggedInUser.role !== 'admin'"
                                                     @click="goToEdit(item)"
                                                     class="cursor-pointer w-10 h-10"
@@ -222,7 +222,7 @@
                                                         title="Edit Data Pasien"
                                                         class="object-contain"
                                                     />
-                                                </button>
+                                                </button> -->
                                                 <button
                                                     v-if="loggedInUser.role !== 'admin'"
                                                     @click="
