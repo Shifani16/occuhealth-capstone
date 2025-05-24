@@ -3,23 +3,22 @@
 <head>
     <meta charset="utf-8">
     <title>Laporan Rekapitulasi MCU</title>
-    {{-- You can include CSS directly or link to external CSS (less reliable for DomPDF) --}}
     <style>
         body { font-family: sans-serif; margin: 40px; font-size: 12px; }
         h1, h2 { text-align: center; color: #333; }
         h1 { margin-bottom: 20px; font-size: 24px; }
         h2 { margin-top: 30px; margin-bottom: 15px; font-size: 18px; border-bottom: 1px solid #eee; padding-bottom: 5px;}
         .date-range { text-align: center; margin-bottom: 30px; font-size: 14px; color: #555;}
-        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; page-break-inside: avoid; /* Keep tables on one page if possible */ }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; page-break-inside: avoid; 
         th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
         th { background-color: #f2f2f2; font-weight: bold; }
         td { vertical-align: top; }
         .no-data { text-align: center; color: #777; }
          .description { margin-bottom: 15px; color: #444;}
          .chart-container { text-align: center; margin-top: 15px; margin-bottom: 20px; }
-         .chart-container img { max-width: 100%; height: auto; } /* Ensure images fit */
+         .chart-container img { max-width: 100%; height: auto; }
          .footer { text-align: center; margin-top: 50px; font-size: 10px; color: #888; }
-         .page-break { page-break-after: always; } /* Force a page break after each section */
+         .page-break { page-break-after: always; } 
     </style>
 </head>
 <body>

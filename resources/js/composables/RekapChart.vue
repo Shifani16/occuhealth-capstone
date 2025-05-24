@@ -48,11 +48,18 @@ const options = {
 
 const barChartRef = ref(null);
 
-const exportAsImage = (type = 'image/png', filename = 'grafik.png') => {
+const exportAsImage = (type = 'image/png', filename = 'grafik.png', targetWidth = 600, targetHeight = 400) => {
     const chartInstance = barChartRef.value?.chart;
 
     if (chartInstance) {
         const canvas = chartInstance.canvas;
+        const currentWidth = canvas.width;
+        const currentHeight = canvas.height;
+
+        const offscreenCanvas = document.createElement('canvas');
+        offscreenCanvas.width = targetWidth;
+        offscreenCanvas.height = targetHeight;
+        const ctx = offscreenCanvas.getContext('2d');
 
         const dataUrl = canvas.toDataURL(type); 
 
@@ -63,8 +70,12 @@ const exportAsImage = (type = 'image/png', filename = 'grafik.png') => {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+
+        console.log(`Generated data URL for image starting: ${dataUrl.substring(0, 100)}...`); // Confirm non-empty data URL
+        return dataUrl;
     } else {
         console.error("Chart instance not available for export.");
+        return null;
     }
 };
 

@@ -68,5 +68,9 @@ Route::prefix('mcu-results')->group(function () {
 
 Route::post('/contact', [ContactController::class, 'sendContactForm']);
 
-Route::post('/reports/generate', [ReportController::class, 'generate']);
-
+Route::prefix('reports')->group(function () {
+    Route::get('recap-data', [ReportController::class, 'getRecapData']);
+    Route::post('generate', [ReportController::class, 'generate']);
+    Route::get('logs', [ReportController::class, 'getLogs']);       
+    Route::post('log', [ReportController::class, 'storeLog']);    
+});
