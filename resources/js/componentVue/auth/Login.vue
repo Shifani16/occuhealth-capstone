@@ -207,7 +207,7 @@ async function login() {
         loading.value = true;
         try {
             const response = await axios.post(
-                "http://localhost:8000/api/login",
+                "https://occuhelp-capstone.up.railway.app/api/login",
                 {
                     nip: nip.value,
                     password: password.value,

@@ -16,7 +16,7 @@ export default defineConfig(({ mode }) => ({
     server: {
         proxy: {
             '/api': {
-                target: 'http://localhost:8000',
+                target: 'https://occuhelp-capstone.up.railway.app',
                 changeOrigin: true,
                 secure: false,
             },
