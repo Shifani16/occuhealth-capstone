@@ -8,12 +8,10 @@ Route::get('/', function () {
     return redirect('/aboutus');
 });
 
-// Important route with signed middleware
 Route::get('/verify-reset/{user}', [ForgotPasswordController::class, 'verifyLink'])
     ->name('password.reset')
     ->middleware('signed');
 
-// Catch-all, but EXCLUDING verify-reset
 Route::get('/{any}', function () {
     return view('app');
 })->where('any', '^(?!verify-reset).*$'); 

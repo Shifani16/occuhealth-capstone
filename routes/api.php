@@ -11,6 +11,8 @@ use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\Api\ImportController;
 use App\Http\Controllers\Api\McuDataController;
 use App\Http\Controllers\ReportController;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Log;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -73,4 +75,27 @@ Route::prefix('reports')->group(function () {
     Route::post('generate', [ReportController::class, 'generate']);
     Route::get('logs', [ReportController::class, 'getLogs']);       
     Route::post('log', [ReportController::class, 'storeLog']);    
+});
+
+Route::get('/debug-env-check', function () {
+    $appUrlFromConfig = Config::get('app.url');
+    $appKeyFromConfig = Config::get('app.key');
+    $envAppUrl = env('APP_URL');
+    $envAppKey = env('APP_KEY');
+    $urlBase = request()->root();
+
+    Log::info("DEBUG: App URL (Config): " . $appUrlFromConfig);
+    Log::info("DEBUG: App Key (Config): " . $appKeyFromConfig);
+    Log::info("DEBUG: App URL (Env): " . $envAppUrl);
+    Log::info("DEBUG: App Key (Env): " . $envAppKey);
+    Log::info("DEBUG: Request Root URL: " . $urlBase);
+
+    return response()->json([
+        'message' => 'Environment check completed. See logs.',
+        'app_url_from_config' => $appUrlFromConfig,
+        'app_key_from_config_first_10_chars' => substr($appKeyFromConfig, 0, 10) . '...',
+        'env_app_url' => $envAppUrl,
+        'env_app_key_first_10_chars' => substr($envAppKey, 0, 10) . '...',
+        'request_root_url' => $urlBase,
+    ]);
 });
