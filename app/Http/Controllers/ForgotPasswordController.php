@@ -20,10 +20,12 @@ class ForgotPasswordController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-       
-        Log::info('--- Signed URL Generation Start ---');
-        Log::info('APP_URL config: ' . config('app.url'));
-        Log::info('APP_KEY config (Generation): ' . config('app.key')); 
+
+        Log::info('--- Signed URL Generation Context ---');
+        Log::info('APP_URL config: ' . config('app.url')); // Should be HTTPS
+        Log::info('APP_KEY config (Generation): ' . config('app.key'));
+        Log::info('Request->isSecure() at generation: ' . ($request->isSecure() ? 'true' : 'false')); // What Laravel thinks
+        Log::info('Request->root() at generation: ' . $request->root()); // What Laravel thinks
         Log::info('---------------------------------');
 
         $resetUrl = URL::temporarySignedRoute(
@@ -32,9 +34,8 @@ class ForgotPasswordController extends Controller
             ['user' => $user->id]
         );
 
-        // *** Logging generated URL ***
-        Log::info('Generated URL: ' . $resetUrl);
-        Log::info('---------------------------------');
+        Log::info('Generated URL (from Laravel): ' . $resetUrl); // Check if it starts with HTTPS
+        Log::info('--- End Generation Context ---');
 
         Mail::raw("Klik tautan berikut untuk reset password: $resetUrl", function ($message) use ($user) {
             $message->to($user->email)
