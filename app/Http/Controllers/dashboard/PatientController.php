@@ -27,30 +27,23 @@ class PatientController extends Controller
 
     public function show($id)
     {
-        $latestMcuSubquery = DB::table('mcu_patients')
-            ->selectRaw('*, ROW_NUMBER() OVER (PARTITION BY patient_id ORDER BY examination_date DESC, id DESC) as rn');
-
-        $patient = Patient::where('patients.id', $id)
-            ->leftJoinSub(
-                $latestMcuSubquery,
-                'ranked_mcus', 
-                function($join) {
-                    $join->on('ranked_mcus.patient_id', '=', 'patients.id')
-                         ->where('ranked_mcus.rn', '=', 1);
-                }
-            )
-            ->select(
-                'patients.*', 
-                'ranked_mcus.examination_date as examination_date', 
-                'ranked_mcus.id as latest_mcu_id' 
-            )
-            ->first(); 
+        $patient = Patient::find($id);
 
         if (!$patient) {
-            return response()->json(['message' => 'Pasien tidak ditemukan.'], 404);
+            return response()->json(['message' => 'Patient not found'], 404);
         }
 
-        return response()->json($patient);
+       
+        $latestMcu = $patient->mcuPatients() 
+                             ->orderByDesc('examination_date')
+                             ->first();
+
+        $responseData = $patient->toArray(); 
+
+        $responseData['latest_examination_date'] = $latestMcu ? $latestMcu->examination_date : null;
+        $responseData['latest_mcu_id'] = $latestMcu ? $latestMcu->id : null;
+
+        return response()->json($responseData);
     }
 
     public function store(Request $request)

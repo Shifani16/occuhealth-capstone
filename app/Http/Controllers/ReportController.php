@@ -32,12 +32,12 @@ class ReportController extends Controller
     {
         try {
             $request->validate([
-                'startDate' => 'required|date_format:Y-m-d',
-                'endDate' => 'required|date_format:Y-m-d|after_or_equal:startDate',
+                'startDate' => 'required|date_format:d/m/Y',
+                'endDate' => 'required|date_format:d/m/Y|after_or_equal:startDate',
             ]);
 
-            $startDate = Carbon::createFromFormat('Y-m-d', $request->startDate)->startOfDay();
-            $endDate = Carbon::createFromFormat('Y-m-d', $request->endDate)->endOfDay();
+            $startDate = Carbon::createFromFormat('d/m/Y', $request->startDate)->startOfDay();
+            $endDate = Carbon::createFromFormat('d/m/Y', $request->endDate)->endOfDay();
 
             $mcuPatients = McuPatient::whereBetween('examination_date', [$startDate, $endDate])
                                         ->with(['patient', 'mcuResults'])
@@ -119,15 +119,15 @@ class ReportController extends Controller
 
         try {
             $request->validate([
-                'startDate' => 'required|date_format:Y-m-d',
-                'endDate' => 'required|date_format:Y-m-d|after_or_equal:startDate',
+                'startDate' => 'required|date_format:d/m/Y',
+                'endDate' => 'required|date_format:d/m/Y|after_or_equal:startDate',
                 'chartImages' => 'nullable|array', 
                  'chartImages.*' => 'string|starts_with:data:image/',
             ]);
 
 
-            $startDate = Carbon::createFromFormat('Y-m-d', $request->startDate)->startOfDay();
-            $endDate = Carbon::createFromFormat('Y-m-d', $request->endDate)->endOfDay();
+            $startDate = Carbon::createFromFormat('d/m/Y', $request->startDate)->startOfDay();
+            $endDate = Carbon::createFromFormat('d/m/Y', $request->endDate)->endOfDay();
 
 
             $chartImages = $request->input('chartImages', []); 

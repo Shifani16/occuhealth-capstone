@@ -12,7 +12,7 @@ class Patient extends Model
         'name',
         // 'examination_date',
         // 'examination_type',
-        // 'unit',
+        'unit',
         'status',
         'gender',
         'age',

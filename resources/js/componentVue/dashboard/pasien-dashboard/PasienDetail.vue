@@ -109,9 +109,8 @@ const formattedPasienData = computed(() => {
         return {};
     }
 
-
-    const examinationDate = data.examination_date
-        ? new Date(data.examination_date).toLocaleDateString('id-ID', {
+    const latestExaminationDate = data.latest_examination_date
+        ? new Date(data.latest_examination_date).toLocaleDateString('id-ID', {
               year: 'numeric',
               month: '2-digit',
               day: '2-digit'
@@ -134,16 +133,15 @@ const formattedPasienData = computed(() => {
 
     return {
       'Nama Pasien': data.name || 'N/A',
-      'Tanggal Pemeriksaan Terakhir': examinationDate,
+      'Tanggal Pemeriksaan Terakhir': latestExaminationDate,
       'Nomor Rekam Medis': data.med_record_id || 'N/A',
       'Nomor Pasien': data.patient_id || 'N/A',
       'Jenis Kelamin': data.gender || 'N/A',
       'Umur': data.age?.toString() || 'N/A',
-      'Tempat dan Tanggal Lahir': tempatTanggalLahirDisplay,
-        'Unit': data.unit || 'N/A',
-       'Jabatan': data.jabatan || 'N/A',
-       'Ketenagaan': data.ketenagaan || 'N/A',
-
+      'Tempat dan Tanggal Lahir': tempatTanggalLahirDisplay,      
+      'Unit': data.unit || 'N/A',
+      'Jabatan': data.jabatan || 'N/A',
+      'Ketenagaan': data.ketenagaan || 'N/A',
     }
 })
 
