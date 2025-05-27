@@ -99,3 +99,12 @@ Route::get('/debug-env-check', function () {
         'request_root_url' => $urlBase,
     ]);
 });
+
+Route::get('/check-scheme', function (\Illuminate\Http\Request $request) {
+    return [
+        'isSecure' => $request->isSecure(),
+        'url' => $request->url(),
+        'root' => $request->root(),
+        'header_x_forwarded_proto' => $request->header('X-Forwarded-Proto'),
+    ];
+});
