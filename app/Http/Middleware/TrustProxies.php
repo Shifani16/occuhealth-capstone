@@ -35,21 +35,35 @@ class TrustProxies extends Middleware
      */
     public function handle($request, \Closure $next)
     {
-        // Call the parent handle method first, which sets up trusted proxies
+        Log::info('TRUSTPROXIES: Starting handle method.');
+        Log::info('TRUSTPROXIES: Request Scheme BEFORE parent::handle: ' . $request->getScheme());
+        Log::info('TRUSTPROXIES: Request isSecure BEFORE parent::handle: ' . ($request->isSecure() ? 'true' : 'false'));
+        Log::info('TRUSTPROXIES: X-Forwarded-Proto Header BEFORE parent::handle: ' . $request->header('X-Forwarded-Proto'));
+
+        // Call the parent handle method first
         $response = parent::handle($request, $next);
 
-        // Retrieve and trim the X-Forwarded-Proto header
+        Log::info('TRUSTPROXIES: Request Scheme AFTER parent::handle: ' . $request->getScheme());
+        Log::info('TRUSTPROXIES: Request isSecure AFTER parent::handle: ' . ($request->isSecure() ? 'true' : 'false'));
+
         $forwardedProto = trim($request->header('X-Forwarded-Proto'));
-        $forwardedSsl = trim($request->header('X-Forwarded-Ssl')); // Also trim this for good measure
+        $forwardedSsl = trim($request->header('X-Forwarded-Ssl'));
 
-        // Explicitly force scheme if headers indicate HTTPS and Laravel still thinks it's HTTP
+        Log::info('TRUSTPROXIES: Trimmed X-Forwarded-Proto: "' . $forwardedProto . '"');
+        Log::info('TRUSTPROXIES: Trimmed X-Forwarded-Ssl: "' . $forwardedSsl . '"');
+
         if (($forwardedProto === 'https' || $forwardedSsl === 'on') && !$request->isSecure()) {
-            $request->server->set('HTTPS', 'on'); // Set $_SERVER['HTTPS']
-            $request->setScheme('https');         // Explicitly set the scheme on the Symfony Request object
+            Log::info('TRUSTPROXIES: Condition met: X-Forwarded-Proto is HTTPS and Request is not Secure. Forcing HTTPS.');
+            $request->server->set('HTTPS', 'on');
+            $request->setScheme('https');
 
-            Log::info('TRUSTPROXIES: Explicitly forcing scheme to HTTPS.');
-            Log::info('Request->isSecure() AFTER explicit forcing: ' . ($request->isSecure() ? 'true' : 'false'));
-            Log::info('Request->getScheme() AFTER explicit forcing: ' . $request->getScheme());
+            Log::info('TRUSTPROXIES: Request->isSecure() AFTER explicit forcing: ' . ($request->isSecure() ? 'true' : 'false'));
+            Log::info('TRUSTPROXIES: Request->getScheme() AFTER explicit forcing: ' . $request->getScheme());
+        } else {
+            Log::info('TRUSTPROXIES: Condition NOT met for forcing HTTPS.');
+            Log::info('TRUSTPROXIES: X-Forwarded-Proto check: ' . ($forwardedProto === 'https' ? 'true' : 'false'));
+            Log::info('TRUSTPROXIES: X-Forwarded-Ssl check: ' . ($forwardedSsl === 'on' ? 'true' : 'false'));
+            Log::info('TRUSTPROXIES: Request->isSecure() current status: ' . ($request->isSecure() ? 'true' : 'false'));
         }
 
         Log::info('--- TrustProxies Debug End ---');
