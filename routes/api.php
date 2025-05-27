@@ -11,6 +11,7 @@ use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\Api\ImportController;
 use App\Http\Controllers\Api\McuDataController;
 use App\Http\Controllers\ReportController;
+use App\Http\Middleware\DebugSignedUrlParameters;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 
@@ -34,7 +35,6 @@ Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
-
 });
 
 Route::post('/import/mcu', [ImportController::class, 'import']);
@@ -73,8 +73,8 @@ Route::post('/contact', [ContactController::class, 'sendContactForm']);
 Route::prefix('reports')->group(function () {
     Route::get('recap-data', [ReportController::class, 'getRecapData']);
     Route::post('generate', [ReportController::class, 'generate']);
-    Route::get('logs', [ReportController::class, 'getLogs']);       
-    Route::post('log', [ReportController::class, 'storeLog']);    
+    Route::get('logs', [ReportController::class, 'getLogs']);
+    Route::post('log', [ReportController::class, 'storeLog']);
 });
 
 Route::get('/debug-env-check', function () {
@@ -108,3 +108,10 @@ Route::get('/check-scheme', function (\Illuminate\Http\Request $request) {
         'header_x_forwarded_proto' => $request->header('X-Forwarded-Proto'),
     ];
 });
+
+Route::get('/verify-reset/{user}', [ForgotPasswordController::class, 'verifyLink'])
+    ->name('password.reset') 
+    ->middleware([
+        DebugSignedUrlParameters::class, 
+        'signed'
+    ]);
