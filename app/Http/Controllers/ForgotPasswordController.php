@@ -42,7 +42,6 @@ class ForgotPasswordController extends Controller
         // --- End Modification ---
 
 
-        // You might want to send an Mailable class instead of raw text for better formatting
         Mail::raw("Klik tautan berikut untuk reset password: $resetUrl", function ($message) use ($user) {
             $message->to($user->email)
                 ->subject('Reset Password Link');
