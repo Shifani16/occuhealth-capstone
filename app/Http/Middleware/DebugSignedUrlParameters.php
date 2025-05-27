@@ -5,7 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Illuminate\Support\Facades\Log; // Keep this here just in case logging starts working
+use Illuminate\Support\Facades\Log;
 
 class DebugSignedUrlParameters
 {
@@ -16,39 +16,25 @@ class DebugSignedUrlParameters
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // IMPORTANT: This middleware is for temporary debugging ONLY.
-        // It will stop the request and return JSON.
-        // REMOVE THIS MIDDLEWARE AND ITS REGISTRATION AFTER DEBUGGING!
+        // Check the X-Forwarded-Proto header as the authoritative source for the original scheme
+        if ($request->header('X-Forwarded-Proto') === 'https') {
+            // Explicitly force the request object's scheme to HTTPS
+            // This should make request->isSecure() and request->getScheme() return true/https
+            // This is often necessary when TrustProxies doesn't make isSecure(true) early enough
+            $request->server->set('HTTPS', 'on'); // Set the $_SERVER['HTTPS'] variable
+            $request->setScheme('https'); // Explicitly set the scheme on the Symfony Request object
+        }
 
-        // You can add a check here if needed, but for temporary debug,
-        // we'll just dump the params for any route it's applied to.
-
-        // Capture debug information
-        $debugInfo = [
-            'debug_signed_url_middleware_check' => true,
-            'request_full_url_received_by_middleware' => $request->fullUrl(),
-            'request_query_params_received_by_middleware' => $request->query->all(),
-            'request_path' => $request->path(),
-            'request_route_params' => $request->route() ? $request->route()->parameters() : 'No route matched yet',
-            'is_secure_at_middleware' => $request->isSecure(),
-            'root_url_at_middleware' => $request->root(),
-            'x_forwarded_proto_header' => $request->header('X-Forwarded-Proto', 'NOT FOUND'),
-            'message' => 'Temporary Debug Middleware: Inspect the query parameters above. Identify any unexpected parameters added by the proxy.',
-            'NEXT_STEPS' => 'Add identified parameters to the $ignoreQuery array in URL::temporarySignedRoute. Then remove this middleware and its route registration.'
-        ];
-
-        // Log this info as well, just in case the logs suddenly appear
-        Log::info('--- DebugSignedUrlParameters Middleware Hit ---');
-        Log::info(json_encode($debugInfo));
-        Log::info('---------------------------------------------');
+        // Optional: Add logging here *after* attempting to force scheme, before 'signed' middleware runs
+        Log::info('--- DebugSignedUrlParameters Middleware State Before Next ---');
+        Log::info('is_secure AFTER forcing: ' . ($request->isSecure() ? 'true' : 'false'));
+        Log::info('Scheme AFTER forcing: ' . $request->getScheme());
+        Log::info('Full URL AFTER forcing: ' . $request->fullUrl()); // Check if this shows https now
+        Log::info('---------------------------------------------------------');
 
 
-        // *** TEMPORARY ACTION: Return the debug info as JSON ***
-        // This bypasses the 'signed' middleware and prevents the 403,
-        // allowing you to see the parameters received.
-        return response()->json($debugInfo);
-
-        // *** PERMANENT ACTION (after debugging): Uncomment the line below ***
-        // return $next($request);
+        // Allow the request to proceed to the next middleware (which is 'signed')
+        // *** THIS IS THE KEY CHANGE - NO LONGER RETURNING JSON ***
+        return $next($request);
     }
 }
