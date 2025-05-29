@@ -32,38 +32,35 @@ class ReportController extends Controller
     {
         try {
             $request->validate([
-                'startDate' => 'required|date_format:d/m/Y',
-                'endDate' => 'required|date_format:d/m/Y|after_or_equal:startDate',
+                'startDate' => 'required|date_format:Y-m-d',
+                'endDate' => 'required|date_format:Y-m-d|after_or_equal:startDate',
             ]);
-
-            $startDate = Carbon::createFromFormat('d/m/Y', $request->startDate)->startOfDay();
-            $endDate = Carbon::createFromFormat('d/m/Y', $request->endDate)->endOfDay();
+            $startDate = Carbon::parse($request->startDate)->startOfDay();
+            $endDate = Carbon::parse($request->endDate)->endOfDay();
 
             $mcuPatients = McuPatient::whereBetween('examination_date', [$startDate, $endDate])
-                                        ->with(['patient', 'mcuResults'])
-                                        ->get();
+                ->with(['patient', 'mcuResults'])
+                ->get();
 
             if ($mcuPatients->isEmpty()) {
-                 return response()->json(['message' => 'Tidak ada data MCU untuk periode yang dipilih.'], 404);
+                return response()->json(['message' => 'Tidak ada data MCU untuk periode yang dipilih.'], 404);
             }
 
-            $formattedDataForCalculation = $mcuPatients->map(function($mcuPatient) {
+            $formattedDataForCalculation = $mcuPatients->map(function ($mcuPatient) {
                 $formattedItem = [];
                 if ($mcuPatient->patient) {
-                     $formattedItem['Jenis Kelamin'] = $mcuPatient->patient->gender ?? null;
-                     $formattedItem['Usia'] = $mcuPatient->patient->age ?? null;
-                     $riwayat = null;
-                     if ($mcuPatient->patient && property_exists($mcuPatient->patient, 'riwayat_kesehatan_pribadi_column_name')) { 
-                         $riwayat = $mcuPatient->patient->riwayat_kesehatan_pribadi_column_name; 
-                     } elseif ($mcuPatient->saran !== null) {
-                         $riwayat = $mcuPatient->saran;
-                     } else {
-                         $riwayatResult = $mcuPatient->mcuResults->firstWhere('category', 'Riwayat Kesehatan Pribadi');
-                         $riwayat = $riwayatResult ? $riwayatResult->result : null;
-                     }
-                     $formattedItem['Riwayat Kesehatan Pribadi'] = $riwayat;
-
-
+                    $formattedItem['Jenis Kelamin'] = $mcuPatient->patient->gender ?? null;
+                    $formattedItem['Usia'] = $mcuPatient->patient->age ?? null;
+                    $riwayat = null;
+                    if ($mcuPatient->patient && property_exists($mcuPatient->patient, 'riwayat_kesehatan_pribadi_column_name')) {
+                        $riwayat = $mcuPatient->patient->riwayat_kesehatan_pribadi_column_name;
+                    } elseif ($mcuPatient->saran !== null) {
+                        $riwayat = $mcuPatient->saran;
+                    } else {
+                        $riwayatResult = $mcuPatient->mcuResults->firstWhere('category', 'Riwayat Kesehatan Pribadi');
+                        $riwayat = $riwayatResult ? $riwayatResult->result : null;
+                    }
+                    $formattedItem['Riwayat Kesehatan Pribadi'] = $riwayat;
                 } else {
                     $formattedItem['Jenis Kelamin'] = null;
                     $formattedItem['Usia'] = null;
@@ -97,9 +94,8 @@ class ReportController extends Controller
             ];
 
             return response()->json($recaps);
-
         } catch (ValidationException $e) {
-             return response()->json(['message' => 'Input tidak valid.', 'errors' => $e->errors()], 422);
+            return response()->json(['message' => 'Input tidak valid.', 'errors' => $e->errors()], 422);
         } catch (\Exception $e) {
             logger()->error('Error fetching recap data:', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             return response()->json(['message' => 'Terjadi kesalahan saat mengambil data rekap.', 'error' => $e->getMessage()], 500);
@@ -114,46 +110,43 @@ class ReportController extends Controller
      */
     public function generate(Request $request)
     {
-        ini_set('memory_limit', '512M'); 
+        ini_set('memory_limit', '512M');
         ini_set('max_execution_time', 180);
 
         try {
             $request->validate([
-                'startDate' => 'required|date_format:d/m/Y',
-                'endDate' => 'required|date_format:d/m/Y|after_or_equal:startDate',
-                'chartImages' => 'nullable|array', 
-                 'chartImages.*' => 'string|starts_with:data:image/',
+                'startDate' => 'required|date_format:Y-m-d', 
+                'endDate' => 'required|date_format:Y-m-d|after_or_equal:startDate',
+                'chartImages' => 'nullable|array',
+                'chartImages.*' => 'string|starts_with:data:image/',
             ]);
+            $startDate = Carbon::parse($request->startDate)->startOfDay();
+            $endDate = Carbon::parse($request->endDate)->endOfDay();   
 
 
-            $startDate = Carbon::createFromFormat('d/m/Y', $request->startDate)->startOfDay();
-            $endDate = Carbon::createFromFormat('d/m/Y', $request->endDate)->endOfDay();
-
-
-            $chartImages = $request->input('chartImages', []); 
+            $chartImages = $request->input('chartImages', []);
 
 
             // --- Fetch Data ---
-             $mcuPatients = McuPatient::whereBetween('examination_date', [$startDate, $endDate])
-                                        ->with(['patient', 'mcuResults'])
-                                        ->get();
+            $mcuPatients = McuPatient::whereBetween('examination_date', [$startDate, $endDate])
+                ->with(['patient', 'mcuResults'])
+                ->get();
 
-            $formattedDataForCalculation = $mcuPatients->map(function($mcuPatient) {
+            $formattedDataForCalculation = $mcuPatients->map(function ($mcuPatient) {
                 $formattedItem = [];
-                 if ($mcuPatient->patient) {
-                     $formattedItem['Jenis Kelamin'] = $mcuPatient->patient->gender ?? null;
-                     $formattedItem['Usia'] = $mcuPatient->patient->age ?? null;
-                     $riwayat = null;
-                     if ($mcuPatient->patient && property_exists($mcuPatient->patient, 'riwayat_kesehatan_pribadi_column_name')) { 
-                         $riwayat = $mcuPatient->patient->riwayat_kesehatan_pribadi_column_name; 
-                     } elseif ($mcuPatient->saran !== null) { 
-                         $riwayat = $mcuPatient->saran;
-                     } else {
-                         $riwayatResult = $mcuPatient->mcuResults->firstWhere('category', 'Riwayat Kesehatan Pribadi');
-                         $riwayat = $riwayatResult ? $riwayatResult->result : null;
-                     }
-                     $formattedItem['Riwayat Kesehatan Pribadi'] = $riwayat;
-
+                if ($mcuPatient->patient) {
+                    $formattedItem['Jenis Kelamin'] = $mcuPatient->patient->gender ?? null;
+                    $formattedItem['Usia'] = $mcuPatient->patient->age ?? null;
+                    $riwayat = null;
+                    if ($mcuPatient->patient && property_exists($mcuPatient->patient, 'riwayat_kesehatan_pribadi_column_name')) {
+                        $riwayat = $mcuPatient->patient->riwayat_kesehatan_pribadi_column_name;
+                    } elseif ($mcuPatient->saran !== null) {
+                        $riwayat = $mcuPatient->saran;
+                    } else {
+                        $riwayatResult = $mcuPatient->mcuResults->firstWhere('category', 'Riwayat Kesehatan Pribadi');
+                        $riwayat = $riwayatResult ? $riwayatResult->result : null;
+                    }
+                    $formattedItem['Riwayat Kesehatan Pribadi'] = $riwayat;
                 } else {
                     $formattedItem['Jenis Kelamin'] = null;
                     $formattedItem['Usia'] = null;
@@ -187,12 +180,12 @@ class ReportController extends Controller
                 'Riwayat Kesehatan' => $this->recapCalculator->calculateRiwayatKesehatanRekap($formattedDataForCalculation),
             ];
 
-             $hasTableData = !empty($recaps) && array_filter($recaps, fn($r) => !empty($r));
-             $hasChartData = !empty($chartImages);
+            $hasTableData = !empty($recaps) && array_filter($recaps, fn($r) => !empty($r));
+            $hasChartData = !empty($chartImages);
 
-             if (!$hasTableData && !$hasChartData) {
-                 return response()->json(['message' => 'Tidak ada data MCU atau grafik yang tersedia untuk periode yang dipilih.'], 404);
-             }
+            if (!$hasTableData && !$hasChartData) {
+                return response()->json(['message' => 'Tidak ada data MCU atau grafik yang tersedia untuk periode yang dipilih.'], 404);
+            }
 
 
             // --- Generate PDF ---
@@ -200,19 +193,17 @@ class ReportController extends Controller
                 'startDate' => $startDate->format('d/m/Y'),
                 'endDate' => $endDate->format('d/m/Y'),
                 'recaps' => $recaps,
-                'chartImages' => $chartImages, 
-                 'hasTableData' => $hasTableData, 
-                 'hasChartData' => $hasChartData, 
+                'chartImages' => $chartImages,
+                'hasTableData' => $hasTableData,
+                'hasChartData' => $hasChartData,
             ]);
 
             $pdf->setPaper('a4', 'portrait');
             $pdf->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true]);
 
             return $pdf->stream("laporan_MCU_{$startDate->format('Ymd')}_sd_{$endDate->format('Ymd')}.pdf");
-
-
         } catch (ValidationException $e) {
-             return response()->json(['message' => 'Input tidak valid.', 'errors' => $e->errors()], 422);
+            return response()->json(['message' => 'Input tidak valid.', 'errors' => $e->errors()], 422);
         } catch (\Exception $e) {
             logger()->error('Error generating report:', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             return response()->json(['message' => 'Terjadi kesalahan saat membuat laporan PDF. Silakan coba lagi atau hubungi administrator.', 'error' => $e->getMessage()], 500);
@@ -224,24 +215,23 @@ class ReportController extends Controller
         try {
             $logs = ReportLog::orderBy('created_at', 'desc')->get();
 
-            $formattedLogs = $logs->map(function($log) {
+            $formattedLogs = $logs->map(function ($log) {
                 return [
                     'id' => $log->id,
-                    'namaFile' => $log->file_name, 
-                    'tanggal' => $log->created_at->toDateString(), 
+                    'namaFile' => $log->file_name,
+                    'tanggal' => $log->created_at->toDateString(),
                 ];
             });
 
 
             return response()->json($formattedLogs);
-
         } catch (\Exception $e) {
             logger()->error('Error fetching report logs:', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             return response()->json(['message' => 'Terjadi kesalahan saat mengambil log laporan.', 'error' => $e->getMessage()], 500);
         }
     }
 
-     /**
+    /**
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
@@ -257,9 +247,8 @@ class ReportController extends Controller
             ]);
 
             return response()->json(['message' => 'Log laporan berhasil disimpan.', 'log' => $log], 201);
-
         } catch (ValidationException $e) {
-             return response()->json(['message' => 'Input log tidak valid.', 'errors' => $e->errors()], 422);
+            return response()->json(['message' => 'Input log tidak valid.', 'errors' => $e->errors()], 422);
         } catch (\Exception $e) {
             logger()->error('Error storing report log:', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             return response()->json(['message' => 'Terjadi kesalahan saat menyimpan log laporan.', 'error' => $e->getMessage()], 500);
