@@ -179,6 +179,13 @@ const isLoading = ref(false);
 const recapData = ref(null);
 
 const chartRefs = ref({});
+
+defineExpose({
+  barRef: {
+    chart: chartInstance, 
+    canvas: chartCanvasRef.value, 
+  }
+});
  
 const chartDataMap = computed(() => {
     if (!recapData.value) {
@@ -335,7 +342,8 @@ async function getChartImageData() {
 
     const captureWidth = 600;
     const captureHeight = 400; 
-    const originalStyles = {}; 
+    const delayAfterResize = 150; 
+
 
     for (const key of chartComponentKeys) {
         const chartComponent = chartRefs.value[key];
@@ -346,46 +354,52 @@ async function getChartImageData() {
             continue;
         }
 
-        const chartInstance = chartComponent?.barRef?.chart;
+        const chartInstance = chartComponent?.barRef?.chart; 
+        const canvas = chartComponent?.barRef?.canvas; 
 
-        if (chartInstance) {
-            const canvas = chartInstance.canvas;
-            if (canvas) {
-                canvas.width = captureWidth;
-                canvas.height = captureHeight;
+        if (!chartInstance || !canvas) {
+             console.error(
+                `Chart.js instance or canvas element not found for RekapChart component "${key}". Ensure 'barRef' is correctly passed/exposed and contains both 'chart' and 'canvas'.`
+            );
+            continue; 
+        }
 
-                chartInstance.resize();
+        console.log(`Resizing canvas for "${key}" to ${captureWidth}x${captureHeight}`);
+        canvas.width = captureWidth;
+        canvas.height = captureHeight;
+
+        chartInstance.resize();
+
+        console.log(`Waiting ${delayAfterResize}ms for chart "${key}" to redraw after resize...`);
+        await new Promise(resolve => setTimeout(resolve, delayAfterResize));
+        console.log(`Finished waiting for chart "${key}".`);
+
+
+        console.log(
+            `Attempting to capture chart for ${key} at dimensions: Width=${canvas.width}, Height=${canvas.height}`
+        );
+        try {
+            if (canvas.width > 0 && canvas.height > 0) {
+                
+                chartImages[key] = canvas.toDataURL("image/jpeg", 0.8);
 
                 console.log(
-                    `Capturing chart for ${key} at dimensions: Width=${canvas.width}, Height=${canvas.height}`
+                    `Successfully captured image for ${key}. Format: JPEG. Data URL length: ${chartImages[key].length}`
                 );
-                try {
-                    if (canvas.width > 0 && canvas.height > 0) {
-                        chartImages[key] = canvas.toDataURL("image/jpeg", 0.8);
-
-                        console.log(
-                            `Successfully captured image for ${key}. Format: JPEG. Data URL length: ${chartImages[key].length}`
-                        );
-                    } else {
-                         console.error(
-                            `Canvas for "${key}" has zero dimensions after setting (width: ${canvas.width}, height: ${canvas.height}). Cannot capture image.`
-                        );
-                    }
-                } catch (captureError) {
-                    console.error(
-                        `Error capturing image for "${key}":`,
-                        captureError
-                    );
-                }
+                 if (chartImages[key].length < 100) {
+                     console.warn(`Captured image data for "${key}" is very short. It might be blank.`);
+                 }
             } else {
-                console.error(
-                    `Canvas element not found for chart instance of "${key}".`
+                 console.error(
+                    `Canvas for "${key}" has zero dimensions after setting (width: ${canvas.width}, height: ${canvas.height}). Cannot capture image.`
                 );
             }
-        } else {
+        } catch (captureError) {
             console.error(
-                `Chart.js instance (barRef.chart) not found for RekapChart component "${key}". Ensure 'barRef' is correctly passed/exposed.`
+                `Error capturing image for "${key}":`,
+                captureError
             );
+        } finally {
         }
     }
 
