@@ -333,6 +333,10 @@ async function getChartImageData() {
         return chartImages;
     }
 
+    const captureWidth = 600;
+    const captureHeight = 400; 
+    const originalStyles = {}; 
+
     for (const key of chartComponentKeys) {
         const chartComponent = chartRefs.value[key];
         if (!chartComponent) {
@@ -347,18 +351,24 @@ async function getChartImageData() {
         if (chartInstance) {
             const canvas = chartInstance.canvas;
             if (canvas) {
+                canvas.width = captureWidth;
+                canvas.height = captureHeight;
+
+                chartInstance.resize();
+
                 console.log(
-                    `Capturing chart for ${key}. Canvas dimensions: Width=${canvas.width}, Height=${canvas.height}`
+                    `Capturing chart for ${key} at dimensions: Width=${canvas.width}, Height=${canvas.height}`
                 );
                 try {
                     if (canvas.width > 0 && canvas.height > 0) {
-                        chartImages[key] = canvas.toDataURL("image/png");
+                        chartImages[key] = canvas.toDataURL("image/jpeg", 0.8);
+
                         console.log(
-                            `Successfully captured image for ${key}. Data URL length: ${chartImages[key].length}`
+                            `Successfully captured image for ${key}. Format: JPEG. Data URL length: ${chartImages[key].length}`
                         );
                     } else {
-                        console.error(
-                            `Canvas for "${key}" has zero dimensions (width: ${canvas.width}, height: ${canvas.height}). Cannot capture image.`
+                         console.error(
+                            `Canvas for "${key}" has zero dimensions after setting (width: ${canvas.width}, height: ${canvas.height}). Cannot capture image.`
                         );
                     }
                 } catch (captureError) {
