@@ -56,6 +56,8 @@ const barChartRef = ref(null);
  * @param {number} [jpegQuality=0.9] 
  * @returns {string|null} 
  */
+
+
 const exportAsImage = (type = 'image/png', filename = 'grafik.png', targetWidth = 600, targetHeight = 400, jpegQuality = 0.9) => {
     const chartInstance = barChartRef.value?.chart;
 
@@ -70,12 +72,12 @@ const exportAsImage = (type = 'image/png', filename = 'grafik.png', targetWidth 
         const originalHeight = chartInstance.canvas.height;
 
         chartInstance.resize(targetWidth, targetHeight);
-        chartInstance.render(); 
+        chartInstance.render();
 
         offscreenCtx.drawImage(chartInstance.canvas, 0, 0, targetWidth, targetHeight);
 
         chartInstance.resize(originalWidth, originalHeight);
-        chartInstance.render(); 
+        chartInstance.render();
 
         let dataUrl;
         if (type === 'image/jpeg') {
@@ -89,6 +91,10 @@ const exportAsImage = (type = 'image/png', filename = 'grafik.png', targetWidth 
         const link = document.createElement('a');
         link.href = dataUrl;
         link.download = filename;
+
+        document.body.appendChild(link);
+        link.click(); 
+        document.body.removeChild(link);
 
         return dataUrl;
     } else {
