@@ -333,7 +333,7 @@ async function getChartImageData() {
             continue;
         }
 
-        const imageData = chartComponent.exportAsImage('image/png', `${key}-chart.png`, 800, 500);
+        const imageData = chartComponent.exportAsImage('image/png', `${key}-chart.png`, 800, 500, 0.9, false); 
 
         if (imageData) {
             chartImages[key] = imageData;

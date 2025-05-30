@@ -50,15 +50,14 @@ const barChartRef = ref(null);
 
 /**
  * @param {string} type
- * @param {string} filename 
- * @param {number} targetWidth 
- * @param {number} targetHeight 
- * @param {number} [jpegQuality=0.9] 
- * @returns {string|null} 
+ * @param {string} filename
+ * @param {number} targetWidth
+ * @param {number} targetHeight
+ * @param {number} [jpegQuality=0.9]
+ * @param {boolean} [triggerDownload=true] - New parameter to control download behavior
+ * @returns {string|null}
  */
-
-
-const exportAsImage = (type = 'image/png', filename = 'grafik.png', targetWidth = 600, targetHeight = 400, jpegQuality = 0.9) => {
+const exportAsImage = (type = 'image/png', filename = 'grafik.png', targetWidth = 600, targetHeight = 400, jpegQuality = 0.9, triggerDownload = true) => {
     const chartInstance = barChartRef.value?.chart;
 
     if (chartInstance) {
@@ -88,13 +87,14 @@ const exportAsImage = (type = 'image/png', filename = 'grafik.png', targetWidth 
             console.log(`Generated PNG data URL: ${dataUrl.substring(0, 100)}...`);
         }
 
-        const link = document.createElement('a');
-        link.href = dataUrl;
-        link.download = filename;
-
-        document.body.appendChild(link);
-        link.click(); 
-        document.body.removeChild(link);
+        if (triggerDownload) {
+            const link = document.createElement('a');
+            link.href = dataUrl;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
 
         return dataUrl;
     } else {
