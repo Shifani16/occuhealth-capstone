@@ -326,63 +326,23 @@ async function getChartImageData() {
     const chartImages = {};
     const chartComponentKeys = Object.keys(chartRefs.value);
 
-    if (chartComponentKeys.length === 0) {
-        console.warn(
-            "No chart components found in refs to capture. This might indicate an issue with chart rendering."
-        );
-        return chartImages;
-    }
-
     for (const key of chartComponentKeys) {
         const chartComponent = chartRefs.value[key];
         if (!chartComponent) {
-            console.warn(
-                `Chart component ref for "${key}" is null/undefined. Skipping.`
-            );
+            console.warn(`Chart component ref for "${key}" is null/undefined. Skipping.`);
             continue;
         }
 
-        const chartInstance = chartComponent?.barRef?.chart;
+        const imageData = chartComponent.exportAsImage('image/png', `${key}-chart.png`, 800, 500);
 
-        if (chartInstance) {
-            const canvas = chartInstance.canvas;
-            if (canvas) {
-                console.log(
-                    `Capturing chart for ${key}. Canvas dimensions: Width=${canvas.width}, Height=${canvas.height}`
-                );
-                try {
-                    if (canvas.width > 0 && canvas.height > 0) {
-                        chartImages[key] = canvas.toDataURL("image/jpeg", 0.7);
-                        console.log(
-                            `Successfully captured image for ${key} as JPEG. Data URL length: ${chartImages[key].length}`
-                        );
-                    } else {
-                        console.error(
-                            `Canvas for "${key}" has zero dimensions (width: ${canvas.width}, height: ${canvas.height}). Cannot capture image.`
-                        );
-                    }
-                } catch (captureError) {
-                    console.error(
-                        `Error capturing image for "${key}":`,
-                        captureError
-                    );
-                }
-            } else {
-                console.error(
-                    `Canvas element not found for chart instance of "${key}".`
-                );
-            }
+        if (imageData) {
+            chartImages[key] = imageData;
+            console.log(`Successfully captured image for ${key}. Data URL length: ${chartImages[key].length}`);
         } else {
-            console.error(
-                `Chart.js instance (barRef.chart) not found for RekapChart component "${key}". Ensure 'barRef' is correctly passed/exposed.`
-            );
+            console.error(`Failed to capture image for ${key}.`);
         }
     }
-
-    console.log(
-        "Total captured chart images:",
-        Object.keys(chartImages).length
-    );
+    console.log("Total captured chart images:", Object.keys(chartImages).length);
     return chartImages;
 }
 
