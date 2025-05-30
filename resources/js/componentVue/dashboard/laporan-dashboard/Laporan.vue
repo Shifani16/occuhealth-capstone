@@ -180,12 +180,6 @@ const recapData = ref(null);
 
 const chartRefs = ref({});
 
-defineExpose({
-  barRef: {
-    chart: chartInstance, 
-    canvas: chartCanvasRef.value, 
-  }
-});
  
 const chartDataMap = computed(() => {
     if (!recapData.value) {
