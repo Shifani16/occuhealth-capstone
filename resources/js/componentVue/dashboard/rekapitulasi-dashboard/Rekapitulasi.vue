@@ -352,13 +352,18 @@ const performCalculation = (optionValue, dataToCalculate) => {
     }
 };
 
-const handleExport = (type = 'image/png', quality = 1) => {
+const handleExport = async (type = 'image/png', quality = 1) => { 
     if (rekapChartRef.value && rekapChartRef.value.exportAsImage) {
         const optionLabel = selectedOption.value ? selectedOption.value.label : 'data';
         const yearLabel = selectedYear.value === 'all' ? 'SemuaTahun' : selectedYear.value;
         const filename = `${optionLabel.replace(/\s+/g, '_')}_${yearLabel}_${Date.now()}.${type.split('/')[1]}`;
 
-        rekapChartRef.value.exportAsImage(type, filename, quality);
+        try {
+            await rekapChartRef.value.exportAsImage(type, filename, quality); 
+            console.log("Chart exported successfully!");
+        } catch (error) {
+            console.error("Error during chart export:", error);
+        }
     } else {
         console.warn("RekapChart component or export method not available.");
     }
@@ -451,8 +456,6 @@ table td {
 
 }
 
-.custom-dropdown {
-}
 
 .custom-dropdown-list {
     max-height: 200px; 

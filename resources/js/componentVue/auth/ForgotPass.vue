@@ -234,6 +234,7 @@ async function submitReset() {
         setTimeout(() => {
             shakeConfirm.value = false;
         }, 600);
+        
         return;
     }
 
@@ -241,6 +242,7 @@ async function submitReset() {
         await axios.post("/api/reset-password", {
             user_id: Number(userId.value),
             password: newPassword.value,
+            password_confirmation: confirmPassword.value, 
         });
 
         showSuccessPopup.value = true;
@@ -248,10 +250,11 @@ async function submitReset() {
         confirmPassword.value = "";
     } catch (error) {
         console.error(error);
-        alert(
-            error.response?.data?.message ||
-                "Gagal memperbarui kata sandi. Coba lagi nanti."
-        );
+        const errorMessage = error.response?.data?.message ||
+                           error.response?.data?.errors?.password?.[0] ||
+                           "Gagal memperbarui kata sandi. Coba lagi nanti.";
+
+        alert(errorMessage);
     }
 }
 
